@@ -1,3 +1,5 @@
+package gamestates;
+
 import edu.usu.graphics.*;
 import org.lwjgl.glfw.GLFW;
 import input.*;

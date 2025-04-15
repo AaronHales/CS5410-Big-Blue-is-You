@@ -1,76 +1,119 @@
 package ecs.Systems;
 
-import ecs.*;
 import ecs.Components.*;
-import input.KeyboardInput;
-import org.lwjgl.glfw.GLFW;
+import ecs.Entities.Entity;
+import ecs.World;
+import utils.Direction;
+import particles.*;
+import gamestates.GamePlayView;
 
-import java.util.*;
+import java.util.List;
 
-public class MovementSystem {
-    private final EntityManager em;
+public class MovementSystem extends System {
+    private final World world;
+    private boolean winTriggered = false;
+    private final GamePlayView view;
 
-    public MovementSystem(EntityManager em) {
-        this.em = em;
+    public MovementSystem(World world, GamePlayView view) {
+        this.world = world;
+        this.view = view;
     }
 
-    public void update(GameData gameData) {
-        int dx = 0, dy = 0;
-        if (KeyboardInput.isKeyPressed(GLFW.GLFW_KEY_W)) dy = -1;
-        else if (KeyboardInput.isKeyPressed(GLFW.GLFW_KEY_S)) dy = 1;
-        else if (KeyboardInput.isKeyPressed(GLFW.GLFW_KEY_A)) dx = -1;
-        else if (KeyboardInput.isKeyPressed(GLFW.GLFW_KEY_D)) dx = 1;
+//    @Override
+    public void update(double deltaTime) {
+        if (winTriggered) return;
 
-        if (dx == 0 && dy == 0) return;
+        List<Entity> controlledEntities = world.getEntitiesWithComponent(
+                KeyboardControlled.class,
+                Position.class,
+                Movable.class
+        );
 
-        List<Entity> entities = em.getEntitiesWithComponent(RuleComponent.class);
-        for (Entity e : entities) {
-            RuleComponent rc = em.getComponent(e, RuleComponent.class);
-            if (!rc.isYou) continue;
+        for (Entity entity : controlledEntities) {
+            Direction moveDir = world.getComponent(entity, KeyboardControlled.class).getDirection();
+            if (moveDir != null) {
+                Position position = world.getComponent(entity, Position.class);
+                int newX = position.getX() + moveDir.dx;
+                int newY = position.getY() + moveDir.dy;
 
-            PositionComponent pc = em.getComponent(e, PositionComponent.class);
-            int nx = pc.x + dx;
-            int ny = pc.y + dy;
+                if (!isBlocked(newX, newY)) {
+                    position.set(newX, newY);
+                    checkSink(entity, newX, newY);
+                    checkDefeat(entity, newX, newY);
+                    checkWin(entity, newX, newY);
+                }
 
-            if (!canMoveTo(nx, ny, dx, dy)) continue;
-
-            pc.x = nx;
-            pc.y = ny;
+                world.getComponent(entity, KeyboardControlled.class).clearDirection();
+            }
         }
     }
 
-    private boolean canMoveTo(int x, int y, int dx, int dy) {
-        for (Entity e : em.getEntities().values()) {
-            PositionComponent pc = em.getComponent(e, PositionComponent.class);
-            if (pc == null || pc.x != x || pc.y != y) continue;
-
-            RuleComponent rc = em.getComponent(e, RuleComponent.class);
-            if (rc == null) continue;
-
-            if (rc.isStop) return false;
-            if (rc.isPush) {
-                int nx = x + dx;
-                int ny = y + dy;
-                if (!canMoveTo(nx, ny, dx, dy)) return false;
-
-                // Move pushable entity
-                pc.x = nx;
-                pc.y = ny;
-            }
-            if (rc.isDefeat) {
-                em.queueRemove(e); // defeat effect
-                return true;
-            }
-            if (rc.isWin) {
-                gameWon(); // can expand later
+    private boolean isBlocked(int x, int y) {
+        List<Entity> entitiesAtTarget = world.getEntitiesAtPosition(x, y);
+        for (Entity e : entitiesAtTarget) {
+            RuleComponent rule = world.getComponent(e, RuleComponent.class);
+            if (rule != null && rule.hasProperty(Property.STOP)) {
                 return true;
             }
         }
-        return true;
+        return false;
     }
 
-    private void gameWon() {
-        System.out.println("You Win!");
-        // TODO: Add proper game state switch
+    private void checkSink(Entity mover, int x, int y) {
+        List<Entity> entitiesAtTarget = world.getEntitiesAtPosition(x, y);
+        for (Entity e : entitiesAtTarget) {
+            if (e == mover) continue;
+            if (world.hasComponent(e, Text.class)) continue;
+
+            RuleComponent rule = world.getComponent(e, RuleComponent.class);
+            if (rule != null && rule.hasProperty(Property.SINK)) {
+                world.removeEntity(e);
+                if (!world.hasComponent(mover, Text.class)) {
+                    world.removeEntity(mover);
+                }
+                break;
+            }
+        }
+    }
+
+    private void checkDefeat(Entity mover, int x, int y) {
+        if (world.hasComponent(mover, Text.class)) return;
+
+        List<Entity> entitiesAtTarget = world.getEntitiesAtPosition(x, y);
+        for (Entity e : entitiesAtTarget) {
+            if (e == mover) continue;
+            RuleComponent rule = world.getComponent(e, RuleComponent.class);
+            if (rule != null && rule.hasProperty(Property.DEFEAT)) {
+                world.removeEntity(mover);
+                break;
+            }
+        }
+    }
+
+    private void checkWin(Entity mover, int x, int y) {
+        if (world.hasComponent(mover, Text.class)) return;
+
+        List<Entity> entitiesAtTarget = world.getEntitiesAtPosition(x, y);
+        for (Entity e : entitiesAtTarget) {
+            if (e == mover) continue;
+            RuleComponent rule = world.getComponent(e, RuleComponent.class);
+            if (rule != null && rule.hasProperty(Property.WIN)) {
+                java.lang.System.out.println("🎉 YOU WIN!");
+                if (!winTriggered) {
+                    winTriggered = true;
+                    ParticleSystem particles = world.getSystem(ParticleSystem.class);
+                    if (particles != null) {
+                        particles.objectIsWin(new Position(x, y));
+                    }
+                    view.triggerWin(x, y); // Static trigger method to start transition
+                }
+                break;
+            }
+        }
+    }
+
+    @Override
+    public void update(World world, double deltaTime) {
+
     }
 }

@@ -1,18 +1,26 @@
 package ecs.Components;
 
 public class Text extends Component {
-    public enum Type {
+    public enum TextType {
         NOUN,
         VERB,
         PROPERTY
     }
 
-    public final Type textType;
+    public final TextType textType;
     public final String value;
 
-    public Text(Type textType, String value) {
+    public Text(TextType textType, String value) {
         this.textType = textType;
         this.value = value;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public TextType getTextType() {
+        return textType;
     }
 
     @Override

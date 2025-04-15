@@ -1,12 +1,31 @@
 package ecs.Components;
 
 public class Position extends Component {
-    public int x;
-    public int y;
+
+    private int x;
+    private int y;
 
     public Position(int x, int y) {
         this.x = x;
         this.y = y;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public void set(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public void set(Position other) {
+        this.x = other.x;
+        this.y = other.y;
     }
 
     public boolean equals(Position other) {

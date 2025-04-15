@@ -1,3 +1,5 @@
+package gamestates;
+
 import edu.usu.graphics.Graphics2D;
 
 public interface IGameState {

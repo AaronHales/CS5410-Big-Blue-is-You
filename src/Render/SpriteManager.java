@@ -44,8 +44,8 @@ public class SpriteManager {
         Texture water = new Texture(spriteFolder + "/water.png");
         sprites.put("water", new AnimatedSprite(water, new float[]{1.0f, 1.0f, 1.0f}, new Vector2f(water.getWidth(), water.getWidth()), new Vector2f(water.getWidth()/2f, water.getHeight()/2f)));
 
-        Texture word_baba = new Texture(spriteFolder + "/word-baba.png");
-        sprites.put("word_baba", new AnimatedSprite(word_baba, new float[]{1.0f, 1.0f, 1.0f}, new Vector2f(word_baba.getWidth(), word_baba.getWidth()), new Vector2f(word_baba.getWidth()/2f, word_baba.getHeight()/2f)));
+        Texture word_bigblue = new Texture(spriteFolder + "/word-bigblue.png");
+        sprites.put("word_bigblue", new AnimatedSprite(word_bigblue, new float[]{1.0f, 1.0f, 1.0f}, new Vector2f(word_bigblue.getWidth(), word_bigblue.getWidth()), new Vector2f(word_bigblue.getWidth()/2f, word_bigblue.getHeight()/2f)));
 
         Texture word_flag = new Texture(spriteFolder + "/word-flag.png");
         sprites.put("word_flag", new AnimatedSprite(word_flag, new float[]{1.0f, 1.0f, 1.0f}, new Vector2f(word_flag.getWidth(), word_flag.getWidth()), new Vector2f(word_flag.getWidth()/2f, word_flag.getHeight()/2f)));

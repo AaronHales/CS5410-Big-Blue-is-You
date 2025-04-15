@@ -1,3 +1,4 @@
+package gamestates;
 
 public enum GameStateEnum {
     MainMenu,

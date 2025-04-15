@@ -1,6 +1,7 @@
 package particles;
 
 import ecs.Components.Position;
+import ecs.World;
 import edu.usu.graphics.Color;
 import edu.usu.graphics.Rectangle;
 import edu.usu.graphics.RenderQueue;
@@ -9,7 +10,7 @@ import org.joml.Matrix4f;
 
 import java.util.*;
 
-public class ParticleSystem {
+public class ParticleSystem extends ecs.Systems.System{
     private final List<Particle> particles = new ArrayList<>();
     private static final float TILE_SIZE = 1.0f / 12.0f; // assuming 12x12 grid for -1 to 1 mapping
     private static final float PARTICLE_SIZE = TILE_SIZE / 2.5f;
@@ -47,8 +48,8 @@ public class ParticleSystem {
     }
 
     private void spawnParticles(Position position, int count, float life, String color) {
-        float centerX = -1 + (position.x + 0.5f) * TILE_SIZE * 2;
-        float centerY = -1 + (position.y + 0.5f) * TILE_SIZE * 2;
+        float centerX = -1 + (position.getX() + 0.5f) * TILE_SIZE * 2;
+        float centerY = -1 + (position.getY() + 0.5f) * TILE_SIZE * 2;
 
         float[] rgb = switch (color.toLowerCase()) {
             case "red" -> new float[]{1f, 0f, 0f};
@@ -61,6 +62,11 @@ public class ParticleSystem {
         for (int i = 0; i < count; i++) {
             particles.add(new Particle(centerX, centerY, life, rgb));
         }
+    }
+
+    @Override
+    public void update(World world, double deltaTime) {
+
     }
 
     public static class Particle {

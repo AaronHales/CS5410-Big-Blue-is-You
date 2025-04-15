@@ -1,85 +1,66 @@
 package ecs.Systems;
 
-import ecs.Entities.*;
 import ecs.Components.*;
+import ecs.Entities.Entity;
+import ecs.World;
 
 import java.util.List;
-import java.util.Map;
 
-public class RuleSystem {
+public class RuleSystem extends System {
+    private final World world;
 
-    private final EntityManager entityManager;
-
-    public RuleSystem(EntityManager entityManager) {
-        this.entityManager = entityManager;
+    public RuleSystem(World world) {
+        this.world = world;
     }
 
-    public void update(GameData gameData) {
-        Map<Integer, Entity> entities = entityManager.getEntities();
-
-        // Clear previous rule components
-        for (Entity e : entities.values()) {
-            entityManager.removeComponent(e, RuleComponent.class);
+//    @Override
+    public void update(double deltaTime) {
+        for (Entity e : world.getEntitiesWithComponent(RuleComponent.class)) {
+            RuleComponent rule = world.getComponent(e, RuleComponent.class);
+            rule.clear();
         }
 
-        // Build a 2D grid of words on the screen
-        int gridWidth = 32; // assuming 32x32 grid
-        int gridHeight = 32;
-        String[][] wordGrid = new String[gridWidth][gridHeight];
-        Entity[][] entityGrid = new Entity[gridWidth][gridHeight];
+        List<Entity> textEntities = world.getEntitiesWithComponent(Text.class);
+        for (Entity e : textEntities) {
+            Text text = world.getComponent(e, Text.class);
+            Position pos = world.getComponent(e, Position.class);
 
-        for (Entity e : entities.values()) {
-            PositionComponent pc = entityManager.getComponent(e, PositionComponent.class);
-            SpriteComponent sc = entityManager.getComponent(e, SpriteComponent.class);
-
-            if (pc == null || sc == null) continue;
-
-            if (sc.getTag().equals("text")) {
-                int x = (int) pc.x;
-                int y = (int) pc.y;
-                wordGrid[x][y] = sc.getName(); // e.g., "BABA", "IS", "YOU"
-                entityGrid[x][y] = e;
+            if (text.getTextType() == Text.TextType.VERB && text.getValue().equals("IS")) {
+                tryRule(pos.getX(), pos.getY(), -1, 0, 1, 0); // Horizontal
+                tryRule(pos.getX(), pos.getY(), 0, -1, 0, 1); // Vertical
             }
         }
-
-        // Scan horizontal and vertical rules
-        scanGrid(wordGrid, entityGrid, entityManager);
     }
 
-    private void scanGrid(String[][] wordGrid, Entity[][] entityGrid, EntityManager em) {
-        int w = wordGrid.length;
-        int h = wordGrid[0].length;
+    private void tryRule(int x, int y, int dx1, int dy1, int dx2, int dy2) {
+        List<Entity> left = world.getEntitiesAtPosition(x + dx1, y + dy1);
+        List<Entity> right = world.getEntitiesAtPosition(x + dx2, y + dy2);
 
-        for (int x = 0; x < w; x++) {
-            for (int y = 0; y < h; y++) {
-                if ("IS".equals(wordGrid[x][y])) {
-                    // Horizontal
-                    if (x > 0 && x < w - 1 && wordGrid[x - 1][y] != null && wordGrid[x + 1][y] != null) {
-                        applyRule(wordGrid[x - 1][y], wordGrid[x + 1][y], em);
-                    }
+        if (left.isEmpty() || right.isEmpty()) return;
 
-                    // Vertical
-                    if (y > 0 && y < h - 1 && wordGrid[x][y - 1] != null && wordGrid[x][y + 1] != null) {
-                        applyRule(wordGrid[x][y - 1], wordGrid[x][y + 1], em);
-                    }
+        Text nounText = getTextComponent(left.get(0));
+        Text propText = getTextComponent(right.get(0));
+
+        if (nounText != null && propText != null &&
+                nounText.getTextType() == Text.TextType.NOUN &&
+                propText.getTextType() == Text.TextType.PROPERTY) {
+
+            for (Entity e : world.getEntitiesWithComponent(Noun.class)) {
+                Noun noun = world.getComponent(e, Noun.class);
+                if (noun.getValue().equalsIgnoreCase(nounText.getValue())) {
+                    RuleComponent rule = world.getOrCreateComponent(e, RuleComponent.class);
+                    rule.addProperty(Property.fromString(propText.getValue()));
                 }
             }
         }
     }
 
-    private void applyRule(String noun, String property, EntityManager em) {
-        for (Entity e : em.getEntities().values()) {
-            SpriteComponent sc = em.getComponent(e, SpriteComponent.class);
-            if (sc != null && sc.getName().equals(noun)) {
-                RuleComponent rc = em.getOrCreateComponent(e, RuleComponent.class);
-                switch (property) {
-                    case "YOU": rc.isYou = true; break;
-                    case "PUSH": rc.isPush = true; break;
-                    case "STOP": rc.isStop = true; break;
-                    case "WIN": rc.isWin = true; break;
-                    case "DEFEAT": rc.isDefeat = true; break;
-                }
-            }
-        }
+    private Text getTextComponent(Entity e) {
+        return world.hasComponent(e, Text.class) ? world.getComponent(e, Text.class) : null;
+    }
+
+    @Override
+    public void update(World world, double deltaTime) {
+
     }
 }

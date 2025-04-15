@@ -1,66 +1,33 @@
 package ecs.Components;
 
-public class Property extends Component {
-    public static final int NONE  = 0;
-    public static final int PUSH  = 1 << 0;
-    public static final int STOP  = 1 << 1;
-    public static final int YOU   = 1 << 2;
-    public static final int WIN   = 1 << 3;
-    public static final int KILL  = 1 << 4;
-    public static final int SINK  = 1 << 5;
+public enum Property {
+    YOU(0x1),
+    PUSH(0x2),
+    STOP(0x4),
+    WIN(0x8),
+    SINK(0x10),
+    DEFEAT(0x20);
 
-    private int value = NONE;
+    private final int value;
 
-    public Property() {
-        this.value = NONE;
-    }
-
-    public Property(int initialValue) {
-        this.value = initialValue;
-    }
-
-    public boolean has(int flag) {
-        return (value & flag) != 0;
-    }
-
-    public void add(int flag) {
-        value |= flag;
-    }
-
-    public void remove(int flag) {
-        value &= ~flag;
-    }
-
-    public int get() {
-        return value;
+    Property(int value) {
+        this.value = value;
     }
 
     public int getValue() {
         return value;
     }
 
-    public void set(int value) {
-        this.value = value;
-    }
-
-    public void clear() {
-        this.value = NONE;
-    }
-
-    public static int fromString(String s) {
+    public static Property fromString(String s) {
         switch (s.toUpperCase()) {
+            case "YOU": return YOU;
             case "PUSH": return PUSH;
             case "STOP": return STOP;
-            case "YOU": return YOU;
             case "WIN": return WIN;
-            case "KILL": case "DEFEAT": return KILL;
             case "SINK": return SINK;
-            default: return NONE;
+            case "DEFEAT": return DEFEAT;
+            default:
+                throw new IllegalArgumentException("Unknown property: " + s);
         }
-    }
-
-    @Override
-    public Component clone() {
-        return new Property(this.value);
     }
 }
