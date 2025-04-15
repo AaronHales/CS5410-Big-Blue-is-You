@@ -3,7 +3,7 @@ package gamestates;
 public enum GameStateEnum {
     MainMenu,
     GamePlay,
-    Controls,
+    ControlsMenu,
     Help,
     About,
     Quit

@@ -4,6 +4,7 @@ import ecs.World;
 import ecs.Entities.*;
 import ecs.Systems.*;
 import ecs.Components.*;
+import edu.usu.graphics.Color;
 import edu.usu.graphics.Graphics2D;
 import Render.SpriteManager;
 
@@ -25,10 +26,10 @@ public class RenderSystem extends System {
             Position pos = e.getComponent(Position.class);
             Sprite sprite = e.getComponent(Sprite.class);
 
-            float drawX = pos.x * 32;
-            float drawY = pos.y * 32;
+            float drawX = pos.getX() * 32;
+            float drawY = pos.getY() * 32;
 
-            spriteManager.draw(graphics2d, sprite.spriteName, drawX, drawY);
+            spriteManager.draw(graphics2d, sprite.spriteName, drawX, drawY, Color.WHITE);
         }
 
     }

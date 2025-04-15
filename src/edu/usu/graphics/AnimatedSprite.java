@@ -66,4 +66,9 @@ public class AnimatedSprite {
                 spriteSheet.getHeight());
         graphics.draw(spriteSheet, destination, subImage, rotation, center, color);
     }
+
+    public void setCenter(float x, float y) {
+        this.center.set(x, y);
+    }
+
 }

@@ -5,32 +5,24 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8858ee06-ea5c-4baa-8898-f17b08ca1729" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/utils/Direction.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/google/gson-2.10.1.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/ecs/Components/AnimatedSpriteComponent.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/ecs/Systems/RenderAnimatedSpriteSystem.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/sprites/word-baba.png" beforeDir="false" afterPath="$PROJECT_DIR$/resources/sprites/word-bigblue.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/AboutView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gamestates/AboutView.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ControlsMenuView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gamestates/ControlsMenuView.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GameState - Menus.iml" beforeDir="false" afterPath="$PROJECT_DIR$/GameState - Menus.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Game.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Game.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/GamePlayView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gamestates/GamePlayView.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/GameStateEnum.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gamestates/GameStateEnum.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/GameStateView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gamestates/GameStateView.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/HelpView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gamestates/HelpView.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/IGameState.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gamestates/IGameState.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/MainMenuView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gamestates/MainMenuView.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Render/SpriteManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Render/SpriteManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ecs/Components/KeyboardControlled.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Components/KeyboardControlled.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ecs/Components/Position.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Components/Position.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ecs/Components/Property.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Components/Property.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ecs/Components/RuleComponent.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Components/RuleComponent.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ecs/Components/Text.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Components/Text.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ecs/Systems/ConditionSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/ConditionSystem.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ecs/Systems/MovementSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/MovementSystem.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ecs/Systems/ParticleSystem.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ecs/Systems/RuleSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/RuleSystem.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ecs/World.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/World.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/levels/EntityFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/levels/EntityFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ecs/Systems/RenderSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/RenderSystem.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ecs/Systems/UndoSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/UndoSystem.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/edu/usu/graphics/AnimatedSprite.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/edu/usu/graphics/AnimatedSprite.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gamestates/ControlsMenuView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gamestates/ControlsMenuView.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gamestates/GamePlayView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gamestates/GamePlayView.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gamestates/GameStateEnum.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gamestates/GameStateEnum.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gamestates/MainMenuView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gamestates/MainMenuView.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/input/ControlConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/input/ControlConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/input/Controls.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/input/Controls.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/levels/LevelEntityFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/levels/LevelEntityFactory.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/particles/ParticleSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/particles/ParticleSystem.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,6 +44,9 @@
   &quot;associatedIndex&quot;: 0
 }</component>
   <component name="ProjectId" id="2fmQPlEJuzn0X51zViugy0Oatt2" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -63,16 +58,18 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "main",
+    "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/aaron/Desktop/USU/Spring 2025/Game Dev/CS5410 - Big Blue is You/resources",
+    "last_opened_file_path": "C:/Users/aaron/Desktop/USU/Spring 2025/Game Dev/CS5410 - Big Blue is You",
     "project.structure.last.edited": "Libraries",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "configurable.group.appearance"
+    "settings.editor.selected.configurable": "project.propVCSSupport.DirectoryMappings"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\aaron\Desktop\USU\Spring 2025\Game Dev\CS5410 - Big Blue is You" />
       <recent name="C:\Users\aaron\Desktop\USU\Spring 2025\Game Dev\CS5410 - Big Blue is You\resources" />
       <recent name="C:\Users\aaron\Desktop\USU\Spring 2025\Game Dev\CS5410 - Big Blue is You\src" />
     </key>
@@ -122,6 +119,11 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <ignored-roots>
+      <path value="$PROJECT_DIR$/../../.." />
+    </ignored-roots>
   </component>
   <component name="XDebuggerManager">
     <watches-manager>

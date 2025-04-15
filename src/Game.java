@@ -21,7 +21,7 @@ public class Game {
             {
                 put(GameStateEnum.MainMenu, new MainMenuView());
                 put(GameStateEnum.GamePlay, new GamePlayView());
-                put(GameStateEnum.Controls, new ControlsMenuView());
+                put(GameStateEnum.ControlsMenu, new ControlsMenuView());
                 put(GameStateEnum.Help, new HelpView());
                 put(GameStateEnum.About, new AboutView());
             }

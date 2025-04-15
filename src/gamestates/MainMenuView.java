@@ -55,7 +55,7 @@ public class MainMenuView extends GameStateView {
         inputKeyboard.registerCommand(GLFW_KEY_ENTER, true, (double elapsedTime) -> {
             nextGameState = switch (currentSelection) {
                 case MenuState.NewGame -> GameStateEnum.GamePlay;
-                case MenuState.Controls -> GameStateEnum.Controls;
+                case MenuState.Controls -> GameStateEnum.ControlsMenu;
                 case MenuState.Help -> GameStateEnum.Help;
                 case MenuState.About -> GameStateEnum.About;
                 case MenuState.Quit -> GameStateEnum.Quit;

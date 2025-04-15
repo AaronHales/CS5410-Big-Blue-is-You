@@ -5,7 +5,7 @@ import ecs.World;
 
 import java.util.*;
 
-public class UndoSystem {
+public class UndoSystem extends System {
     private final Deque<List<Entity>> undoStack = new ArrayDeque<>();
 
     public void push(World world) {
@@ -35,5 +35,10 @@ public class UndoSystem {
 
     public boolean hasUndo() {
         return !undoStack.isEmpty();
+    }
+
+    @Override
+    public void update(World world, double deltaTime) {
+
     }
 }

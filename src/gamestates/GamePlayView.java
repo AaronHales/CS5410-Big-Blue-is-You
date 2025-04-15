@@ -1,15 +1,17 @@
 package gamestates;
 
-import ecs.World;
-import ecs.Components.*;
-import ecs.Entities.Entity;
+import edu.usu.graphics.*;
+import edu.usu.graphics.Graphics2D;
 import ecs.Systems.*;
+import ecs.Components.*;
+import ecs.Entities.*;
+import levels.*;
+import ecs.*;
 import input.KeyboardInput;
-import levels.LevelLoader;
+import input.Controls;
+import Render.SpriteManager;
 import org.lwjgl.glfw.GLFW;
 import particles.ParticleSystem;
-import edu.usu.graphics.*;
-import Render.SpriteManager;
 
 import java.io.File;
 import java.util.List;
@@ -29,12 +31,17 @@ public class GamePlayView extends GameStateView {
     private Position winPosition = null;
     private boolean fireworksTriggered = false;
 
+    private UndoSystem undoSystem;
+
     @Override
     public void initialize(Graphics2D graphics) {
         super.initialize(graphics);
 
+        Controls.loadBindings();
+
         world = new World();
-        List<Entity> levelEntities = LevelLoader.loadLevels("resources/levels/level-1.bbiy");
+
+        List<Entity> levelEntities = levels.LevelLoader.loadLevels("resources/levels/level-1.bbiy");
         for (Entity entity : levelEntities) {
             world.addEntity(entity);
         }
@@ -42,17 +49,35 @@ public class GamePlayView extends GameStateView {
         world.addSystem(new RuleSystem(world));
         world.addSystem(new ConditionSystem(world));
         world.addSystem(new MovementSystem(world, this));
-        // world.addSystem(new RenderSystem(world)); // Add if needed
+        world.addSystem(new RenderAnimatedSpriteSystem(world));
+        LevelEntityFactory.setSpriteManager(spriteManager);
+
+        undoSystem = new UndoSystem();
+        world.addSystem(undoSystem);
 
         font = new Font("resources/fonts/Roboto-Regular.ttf", 48, false);
 
         inputKeyboard = new KeyboardInput(graphics);
         inputKeyboard.registerCommand(GLFW.GLFW_KEY_ESCAPE, true, (elapsedTime) -> {
+            Controls.saveBindings();
             nextGameState = GameStateEnum.MainMenu;
+        });
+
+        inputKeyboard.registerCommand(GLFW.GLFW_KEY_R, true, (elapsedTime) -> {
+            restartLevel();
+        });
+
+        inputKeyboard.registerCommand(GLFW.GLFW_KEY_Z, true, (elapsedTime) -> {
+            undoLastMove();
         });
 
         spriteManager = new SpriteManager("./resources/sprites");
         spriteManager.loadAll();
+    }
+
+    @Override
+    public void initializeSession() {
+        nextGameState = GameStateEnum.GamePlay;
     }
 
     @Override
@@ -65,10 +90,12 @@ public class GamePlayView extends GameStateView {
     public void update(double elapsedTime) {
         if (levelWon) {
             if (!fireworksTriggered && winPosition != null) {
-                world.getSystem(ParticleSystem.class).objectIsWin(winPosition);
+                ParticleSystem particles = world.getSystem(ParticleSystem.class);
+                if (particles != null) {
+                    particles.objectIsWin(winPosition);
+                }
                 fireworksTriggered = true;
             }
-
 
             winDelayTimer -= elapsedTime;
             if (winDelayTimer <= 0) {
@@ -127,6 +154,14 @@ public class GamePlayView extends GameStateView {
         }
 
         graphics.drawTextByHeight(font, "[ESC] - Back", -0.95f, -0.75f, 0.05f, Color.YELLOW);
+        graphics.drawTextByHeight(font, "[R] - Restart", -0.95f, -0.85f, 0.05f, Color.CORNFLOWER_BLUE);
+        graphics.drawTextByHeight(font, "[Z] - Undo", -0.95f, -0.95f, 0.05f, Color.BLUE);
+
+        RenderAnimatedSpriteSystem animSystem = world.getSystem(RenderAnimatedSpriteSystem.class);
+        if (animSystem != null) {
+            animSystem.update(world, elapsedTime, graphics);
+        }
+
     }
 
     public void triggerWin(int x, int y) {
@@ -145,7 +180,7 @@ public class GamePlayView extends GameStateView {
             return;
         }
         world.clear();
-        List<Entity> next = LevelLoader.loadLevels(path);
+        List<Entity> next = levels.LevelLoader.loadLevels(path);
         for (Entity e : next) {
             world.addEntity(e);
         }
@@ -153,5 +188,27 @@ public class GamePlayView extends GameStateView {
         fireworksTriggered = false;
         winPosition = null;
         winDelayTimer = -1;
+        undoSystem.clear();
+    }
+
+    private void restartLevel() {
+        String path = "resources/levels/level-" + (currentLevelIndex + 1) + ".bbiy";
+        world.clear();
+        List<Entity> levelEntities = levels.LevelLoader.loadLevels(path);
+        for (Entity entity : levelEntities) {
+            world.addEntity(entity);
+        }
+
+        levelWon = false;
+        fireworksTriggered = false;
+        winPosition = null;
+        winDelayTimer = -1;
+        undoSystem.clear();
+    }
+
+    private void undoLastMove() {
+        if (undoSystem != null) {
+            undoSystem.pop(world);
+        }
     }
 }
