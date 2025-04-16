@@ -5,4 +5,8 @@ package ecs.Components;
  * associated with this component.
  */
 public class Collision extends Component {
+    @Override
+    public Component clone() {
+        return null;
+    }
 }

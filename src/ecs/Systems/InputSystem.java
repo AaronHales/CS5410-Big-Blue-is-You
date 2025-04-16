@@ -1,79 +1,75 @@
 package ecs.Systems;
 
-import ecs.*;
-import ecs.Components.*;
-import ecs.Entities.*;
-import input.KeyboardInput;
-import input.Command;
-import org.lwjgl.glfw.GLFW;
+import ecs.Components.Position;
+import ecs.Components.RuleComponent;
+import ecs.Components.Property;
+import ecs.Entities.Entity;
+import ecs.World;
+import input.ControlConfig;
+import utils.Direction;
 
-import ecs.Systems.UndoSystem;
+import java.util.List;
+
+import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
+import static org.lwjgl.glfw.GLFW.glfwGetKey;
 
 public class InputSystem extends System {
+    private final long window;
+    private final World world;
     private final UndoSystem undoSystem;
-    private final KeyboardInput keyboard;
 
-    public InputSystem(KeyboardInput keyboard, World world, UndoSystem undoSystem) {
-        this.keyboard = keyboard;
+    public InputSystem(long window, World world, UndoSystem undoSystem) {
+        this.window = window;
+        this.world = world;
         this.undoSystem = undoSystem;
-        registerMovementCommands(keyboard, world);
-        registerUndoCommand(keyboard, world);
-    }
-
-    private void registerMovementCommands(KeyboardInput keyboard, World world) {
-        keyboard.registerCommand(GLFW.GLFW_KEY_UP, true, new MoveCommand(world, 0, -1));
-        keyboard.registerCommand(GLFW.GLFW_KEY_DOWN, true, new MoveCommand(world, 0, 1));
-        keyboard.registerCommand(GLFW.GLFW_KEY_LEFT, true, new MoveCommand(world, -1, 0));
-        keyboard.registerCommand(GLFW.GLFW_KEY_RIGHT, true, new MoveCommand(world, 1, 0));
-    }
-
-    private void registerUndoCommand(KeyboardInput keyboard, World world) {
-        // You can optionally register Z as a command here if preferred,
-        // or continue to poll it manually inside update().
     }
 
     @Override
     public void update(World world, double deltaTime) {
-        // Undo key is Z
-        if (keyboard.isKeyPressed(GLFW.GLFW_KEY_Z)) {
-            if (undoSystem.hasUndo()) undoSystem.pop(world);
+        Direction direction = getDirectionFromInput();
+
+        if (direction != null) {
+            // Get all YOU-tagged entities
+            List<Entity> entities = world.getEntitiesWithComponent(RuleComponent.class, Position.class);
+            for (Entity e : entities) {
+                RuleComponent rc = world.getComponent(e, RuleComponent.class);
+                if (rc.hasProperty(Property.YOU)) {
+                    Position pos = world.getComponent(e, Position.class);
+
+                    int oldX = pos.getX();
+                    int oldY = pos.getY();
+
+                    int newX = oldX + direction.dx;
+                    int newY = oldY + direction.dy;
+
+                    // Save for undo
+                    undoSystem.push(world);
+
+                    // Move
+                    pos.set(newX, newY);
+                }
+            }
+        }
+
+        // Handle Undo Key
+        if (glfwGetKey(window, ControlConfig.getBinding("UNDO")) == GLFW_PRESS) {
+            undoSystem.pop(world);
         }
     }
 
-    private class MoveCommand implements Command {
-        private final World world;
-        private final int dx, dy;
-
-        public MoveCommand(World world, int dx, int dy) {
-            this.world = world;
-            this.dx = dx;
-            this.dy = dy;
+    private Direction getDirectionFromInput() {
+        if (glfwGetKey(window, ControlConfig.getBinding("UP")) == GLFW_PRESS) {
+            return Direction.UP;
         }
-
-        @Override
-        public void execute(double deltaTime) {
-            boolean moved = false;
-
-            for (Entity entity : world.getEntities()) {
-                if (!entity.hasComponent(Position.class)) continue;
-                if (!entity.hasComponent(Property.class)) continue;
-                if (!entity.hasComponent(KeyboardControlled.class)) continue;
-
-                Property prop = entity.getComponent(Property.class);
-                if (!prop.has(Property.YOU)) continue;
-
-                Position pos = entity.getComponent(Position.class);
-                int oldX = pos.x;
-                int oldY = pos.y;
-                pos.x += dx;
-                pos.y += dy;
-
-                if (oldX != pos.x || oldY != pos.y) moved = true;
-
-                world.notifyEntityUpdated(entity);
-            }
-
-            if (moved) undoSystem.push(world);
+        if (glfwGetKey(window, ControlConfig.getBinding("DOWN")) == GLFW_PRESS) {
+            return Direction.DOWN;
         }
+        if (glfwGetKey(window, ControlConfig.getBinding("LEFT")) == GLFW_PRESS) {
+            return Direction.LEFT;
+        }
+        if (glfwGetKey(window, ControlConfig.getBinding("RIGHT")) == GLFW_PRESS) {
+            return Direction.RIGHT;
+        }
+        return null;
     }
 }

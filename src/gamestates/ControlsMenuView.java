@@ -12,12 +12,16 @@ import java.util.*;
 public class ControlsMenuView extends GameStateView {
     private Graphics2D graphics;
     private Font font;
+    private Font fontSelected;
     private KeyboardInput input;
 
     private final List<ControlConfig.Action> actions = Arrays.asList(ControlConfig.Action.values());
 
     private int selectedIndex = 0;
     private boolean waitingForRebind = false;
+
+    private float inputCooldownTimer = 0;
+
 
     private GameStateEnum nextState = GameStateEnum.ControlsMenu;
 
@@ -26,6 +30,7 @@ public class ControlsMenuView extends GameStateView {
         this.graphics = graphics;
         this.input = new KeyboardInput(graphics);
         this.font = new Font("resources/fonts/Roboto-Regular.ttf", 48, false);
+        fontSelected = new Font("resources/fonts/Roboto-Bold.ttf", 48, false);
 
         input.registerCommand(GLFW.GLFW_KEY_DOWN, true, (dt) -> {
             if (!waitingForRebind) {
@@ -39,10 +44,6 @@ public class ControlsMenuView extends GameStateView {
             }
         });
 
-        input.registerCommand(GLFW.GLFW_KEY_ENTER, true, (dt) -> {
-            waitingForRebind = true;
-        });
-
         input.registerCommand(GLFW.GLFW_KEY_ESCAPE, true, (dt) -> {
             if (waitingForRebind) {
                 waitingForRebind = false;
@@ -54,6 +55,14 @@ public class ControlsMenuView extends GameStateView {
 
     @Override
     public void initializeSession() {
+        inputCooldownTimer = 0.3f;
+
+        input.registerCommand(GLFW.GLFW_KEY_ENTER, true, (dt) -> {
+            if (!waitingForRebind && inputCooldownTimer <= 0) {
+                waitingForRebind = true;
+            }
+        });
+
         waitingForRebind = false;
         selectedIndex = 0;
         nextState = GameStateEnum.ControlsMenu;
@@ -63,15 +72,19 @@ public class ControlsMenuView extends GameStateView {
     public GameStateEnum processInput(double elapsedTime) {
         input.update(elapsedTime);
 
-        if (waitingForRebind) {
+        if (waitingForRebind && inputCooldownTimer <= 0) {
             long window = graphics.getWindow();
             for (int key = GLFW.GLFW_KEY_SPACE; key <= GLFW.GLFW_KEY_LAST; key++) {
                 if (GLFW.glfwGetKey(window, key) == GLFW.GLFW_PRESS) {
-                    if (key != GLFW.GLFW_KEY_ESCAPE) {
+                    if (key == GLFW.GLFW_KEY_ENTER) {
+                        waitingForRebind = true;
+                    } else if (key != GLFW.GLFW_KEY_ESCAPE) {
                         ControlConfig.setBinding(actions.get(selectedIndex).name(), key);
-                        Controls.saveBindings(); // ✅ Save immediately after rebinding
+                        Controls.saveBindings();
+                        waitingForRebind = false;
+                    } else {
+                        waitingForRebind = false;
                     }
-                    waitingForRebind = false;
                     break;
                 }
             }
@@ -82,35 +95,44 @@ public class ControlsMenuView extends GameStateView {
 
     @Override
     public void update(double elapsedTime) {
-        // No simulation
+        if (inputCooldownTimer > 0) {
+            inputCooldownTimer -= (float) elapsedTime;
+        }
     }
 
     @Override
     public void render(double elapsedTime) {
-        float y = 0.6f;
+        float y = -0.6f;
 
         for (int i = 0; i < actions.size(); i++) {
             ControlConfig.Action action = actions.get(i);
             int keyCode = ControlConfig.getBinding(action.name());
             String keyName = GLFW.glfwGetKeyName(keyCode, 0);
-            if (keyName == null) keyName = "[Unknown]";
+            if (keyName == null) {
+                keyName = "[Unknown]";
+//                System.out.printf("action: %s, keyName: %s, KeyCode: %d\n", action, keyName, keyCode);
+            }
 
             String text = action.name().replace("_", " ") + " : " + keyName.toUpperCase();
+            if (waitingForRebind && i == selectedIndex) {
+                text = action.name().replace("_", " ") + " : Press a key";
+            }
+
             Color color = (i == selectedIndex ? Color.YELLOW : Color.BLUE);
-            graphics.drawTextByHeight(font, text, -0.75f, y, 0.05f, color);
-            y -= 0.1f;
+            graphics.drawTextByHeight(i == selectedIndex ? fontSelected : font, text, -0.75f, y, 0.05f, color);
+            y += 0.1f;
         }
 
-        if (waitingForRebind) {
-            graphics.drawTextByHeight(
-                    font,
-                    "Press a key for " + actions.get(selectedIndex).name().replace("_", " "),
-                    -0.6f,
-                    -0.75f,
-                    0.045f,
-                    Color.CORNFLOWER_BLUE
-            );
-        }
+//        if (waitingForRebind) {
+//            graphics.drawTextByHeight(
+//                    font,
+//                    "Press a key for " + actions.get(selectedIndex).name().replace("_", " "),
+//                    -0.6f,
+//                    -0.75f,
+//                    0.045f,
+//                    Color.CORNFLOWER_BLUE
+//            );
+//        }
     }
 
 //    @Override

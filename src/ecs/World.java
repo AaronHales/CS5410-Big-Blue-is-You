@@ -12,6 +12,9 @@ public class World {
     private final List<Entity> entities = new ArrayList<>();
     private final Map<Entity, Map<Class<? extends Component>, Component>> components = new HashMap<>();
 
+    private int levelWidth;
+    private int levelHeight;
+
     public void addSystem(System system) {
         systems.add(system);
     }
@@ -110,4 +113,18 @@ public class World {
         entities.clear();
         components.clear();
     }
+
+    public void setLevelDimensions(int width, int height) {
+        this.levelWidth = width;
+        this.levelHeight = height;
+    }
+
+    public int getLevelWidth() {
+        return levelWidth;
+    }
+
+    public int getLevelHeight() {
+        return levelHeight;
+    }
+
 }

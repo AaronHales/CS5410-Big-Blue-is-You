@@ -1,19 +1,21 @@
 package ecs.Systems;
 
+import ecs.Components.Position;
+import ecs.Components.Sprite;
+import ecs.Entities.Entity;
 import ecs.World;
-import ecs.Entities.*;
-import ecs.Systems.*;
-import ecs.Components.*;
 import edu.usu.graphics.Color;
 import edu.usu.graphics.Graphics2D;
 import Render.SpriteManager;
 
-public class RenderSystem extends System {
-    private final long window;
+import java.util.List;
+
+public class RenderFloorSystem extends System {
+    private final World world;
     private final SpriteManager spriteManager;
 
-    public RenderSystem(long window, SpriteManager spriteManager) {
-        this.window = window;
+    public RenderFloorSystem(World world, SpriteManager spriteManager) {
+        this.world = world;
         this.spriteManager = spriteManager;
     }
 
@@ -33,6 +35,10 @@ public class RenderSystem extends System {
     }
 
 
+    //    @Override
+    public void update(double deltaTime) {
+
+    }
 
     @Override
     public void update(World world, double deltaTime) {

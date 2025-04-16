@@ -33,6 +33,11 @@ public class GamePlayView extends GameStateView {
 
     private UndoSystem undoSystem;
 
+    private RenderFloorSystem renderFloorSystem;
+    private RenderObjectsSystem renderObjectsSystem;
+    private RenderTextSystem renderTextSystem;
+
+
     @Override
     public void initialize(Graphics2D graphics) {
         super.initialize(graphics);
@@ -41,19 +46,33 @@ public class GamePlayView extends GameStateView {
 
         world = new World();
 
-        List<Entity> levelEntities = levels.LevelLoader.loadLevels("resources/levels/level-1.bbiy");
+        undoSystem = new UndoSystem();
+        world.addSystem(undoSystem);
+
+
+
+        spriteManager = new SpriteManager("./resources/sprites");
+        spriteManager.loadAll();
+
+        LevelEntityFactory.setSpriteManager(spriteManager);
+
+        List<Entity> levelEntities = levels.LevelLoader.loadLevels("resources/levels/level-1.bbiy", world);
         for (Entity entity : levelEntities) {
             world.addEntity(entity);
         }
+
+        renderFloorSystem = new RenderFloorSystem(world, spriteManager);
+        renderObjectsSystem = new RenderObjectsSystem(world, spriteManager);
+        renderTextSystem = new RenderTextSystem(world, spriteManager);
+
 
         world.addSystem(new RuleSystem(world));
         world.addSystem(new ConditionSystem(world));
         world.addSystem(new MovementSystem(world, this));
         world.addSystem(new RenderAnimatedSpriteSystem(world));
-        LevelEntityFactory.setSpriteManager(spriteManager);
+        world.addSystem(new InputSystem(graphics.getWindow(), world, undoSystem));
 
-        undoSystem = new UndoSystem();
-        world.addSystem(undoSystem);
+
 
         font = new Font("resources/fonts/Roboto-Regular.ttf", 48, false);
 
@@ -70,9 +89,6 @@ public class GamePlayView extends GameStateView {
         inputKeyboard.registerCommand(GLFW.GLFW_KEY_Z, true, (elapsedTime) -> {
             undoLastMove();
         });
-
-        spriteManager = new SpriteManager("./resources/sprites");
-        spriteManager.loadAll();
     }
 
     @Override
@@ -134,13 +150,23 @@ public class GamePlayView extends GameStateView {
 
     @Override
     public void render(double elapsedTime) {
+        renderFloorSystem.update(world, elapsedTime, graphics);
+        renderObjectsSystem.update(world, elapsedTime, graphics);
+        renderTextSystem.update(world, elapsedTime, graphics);
+
         for (Entity e : world.getEntities()) {
             if (e.hasComponent(Position.class) && e.hasComponent(Sprite.class)) {
                 Position pos = e.getComponent(Position.class);
                 Sprite sprite = e.getComponent(Sprite.class);
-                spriteManager.draw(graphics, sprite.spriteName, Color.WHITE);
+                float tileSize = 1.0f / 16.0f;
+                float offsetX = -tileSize * world.getLevelWidth() / 2.0f;
+                float offsetY = -tileSize * world.getLevelHeight() / 2.0f;
+                float drawX = offsetX + tileSize * pos.getX() + tileSize / 2;
+                float drawY = offsetY + tileSize * pos.getY() + tileSize / 2;
+                spriteManager.draw(graphics, sprite.spriteName, drawX, drawY, Color.WHITE);
             }
         }
+
 
         if (levelWon) {
             graphics.drawTextByHeight(
@@ -154,8 +180,8 @@ public class GamePlayView extends GameStateView {
         }
 
         graphics.drawTextByHeight(font, "[ESC] - Back", -0.95f, -0.75f, 0.05f, Color.YELLOW);
-        graphics.drawTextByHeight(font, "[R] - Restart", -0.95f, -0.85f, 0.05f, Color.CORNFLOWER_BLUE);
-        graphics.drawTextByHeight(font, "[Z] - Undo", -0.95f, -0.95f, 0.05f, Color.BLUE);
+        graphics.drawTextByHeight(font, "[R] - Restart", -0.95f, -0.69f, 0.05f, Color.CORNFLOWER_BLUE);
+        graphics.drawTextByHeight(font, "[Z] - Undo", -0.95f, -0.63f, 0.05f, Color.BLUE);
 
         RenderAnimatedSpriteSystem animSystem = world.getSystem(RenderAnimatedSpriteSystem.class);
         if (animSystem != null) {
@@ -180,7 +206,7 @@ public class GamePlayView extends GameStateView {
             return;
         }
         world.clear();
-        List<Entity> next = levels.LevelLoader.loadLevels(path);
+        List<Entity> next = levels.LevelLoader.loadLevels(path, world);
         for (Entity e : next) {
             world.addEntity(e);
         }
@@ -194,7 +220,7 @@ public class GamePlayView extends GameStateView {
     private void restartLevel() {
         String path = "resources/levels/level-" + (currentLevelIndex + 1) + ".bbiy";
         world.clear();
-        List<Entity> levelEntities = levels.LevelLoader.loadLevels(path);
+        List<Entity> levelEntities = levels.LevelLoader.loadLevels(path, world);
         for (Entity entity : levelEntities) {
             world.addEntity(entity);
         }

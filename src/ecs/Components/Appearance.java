@@ -11,4 +11,9 @@ public class Appearance extends Component {
         this.image = image;
         this.color = color;
     }
+
+    @Override
+    public Component clone() {
+        return null;
+    }
 }
