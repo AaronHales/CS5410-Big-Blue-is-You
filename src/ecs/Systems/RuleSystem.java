@@ -4,6 +4,7 @@ import ecs.Components.*;
 import ecs.Entities.Entity;
 import ecs.World;
 import levels.LevelEntityFactory;
+import utils.Direction;
 
 import java.util.*;
 
@@ -64,6 +65,47 @@ public class RuleSystem extends System {
             tagRuleWords(x, y, dx1, dy1, dx2, dy2, RuleVisualTag.Type.VALID);
             return;
         }
+
+        // --- TEXT IS <PROPERTY> ---
+        if (nounText.getTextType() == Text.TextType.NOUN &&
+                nounText.getValue().equalsIgnoreCase("TEXT") &&
+                propText.getTextType() == Text.TextType.PROPERTY) {
+
+            Property prop = Property.fromString(propText.getValue());
+
+            for (Entity e : world.getEntitiesWithComponent(Text.class)) {
+                RuleComponent rc = world.getOrCreateComponent(e, RuleComponent.class);
+                rc.addProperty(prop);
+            }
+
+            tagRuleWords(x, y, dx1, dy1, dx2, dy2, RuleVisualTag.Type.VALID);
+            return;
+        }
+
+
+        // --- NOUN IS MOVE ---
+        if (nounText.getTextType() == Text.TextType.NOUN &&
+                propText.getTextType() == Text.TextType.PROPERTY &&
+                propText.getValue().equalsIgnoreCase("MOVE")) {
+
+            for (Entity e : world.getEntities()) {
+                if (!world.hasComponent(e, Noun.class)) continue;
+                Noun noun = world.getComponent(e, Noun.class);
+                if (!noun.getValue().equalsIgnoreCase(nounText.getValue())) continue;
+
+                RuleComponent rc = world.getOrCreateComponent(e, RuleComponent.class);
+                rc.addProperty(Property.MOVE);
+
+                // Assign default move direction if missing
+                if (!world.hasComponent(e, MoveDirectionComponent.class)) {
+                    world.addComponent(e, new MoveDirectionComponent(Direction.RIGHT));
+                }
+            }
+
+            tagRuleWords(x, y, dx1, dy1, dx2, dy2, RuleVisualTag.Type.VALID);
+            return;
+        }
+
 
         // NOUN IS YOU
         if (nounText.getTextType() == Text.TextType.NOUN &&

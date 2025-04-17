@@ -16,13 +16,18 @@ public class EntityFactory {
             case 'w': return LevelEntityFactory.createWall(x, y);
             case 'r': return LevelEntityFactory.createRock(x, y);
             case 'b': return LevelEntityFactory.createBigBlue(x, y);
-            // Add more as needed for flag, lava, etc.
+            case 'f': return LevelEntityFactory.createFlag(x, y);
+            case 'v': return LevelEntityFactory.createLava(x, y);
+            case 'a': return LevelEntityFactory.createWater(x, y);
+
 
             // Text Nouns
             case 'W': return LevelEntityFactory.createText(x, y, "WALL", Text.TextType.NOUN);
             case 'R': return LevelEntityFactory.createText(x, y, "ROCK", Text.TextType.NOUN);
             case 'B': return LevelEntityFactory.createText(x, y, "BIGBLUE", Text.TextType.NOUN);
             case 'F': return LevelEntityFactory.createText(x, y, "FLAG", Text.TextType.NOUN);
+            case 'V': return LevelEntityFactory.createText(x, y, "LAVA", Text.TextType.NOUN);
+            case 'A': return LevelEntityFactory.createText(x, y, "WATER", Text.TextType.NOUN);
 
             // Verbs and Properties
             case 'I': return LevelEntityFactory.createText(x, y, "IS", Text.TextType.VERB);

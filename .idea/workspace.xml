@@ -5,11 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8858ee06-ea5c-4baa-8898-f17b08ca1729" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/ecs/Components/MoveDirectionComponent.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ecs/Components/KeyboardControlled.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Components/KeyboardControlled.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ecs/Systems/InputSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/InputSystem.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ecs/Components/Property.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Components/Property.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ecs/Systems/MovementSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/MovementSystem.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ecs/World.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/World.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ecs/Systems/RuleSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/RuleSystem.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/levels/EntityFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/levels/EntityFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/levels/LevelEntityFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/levels/LevelEntityFactory.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

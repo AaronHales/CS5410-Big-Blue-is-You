@@ -6,7 +6,8 @@ public enum Property {
     STOP(0x4),
     WIN(0x8),
     SINK(0x10),
-    DEFEAT(0x20);
+    DEFEAT(0x20),
+    MOVE(0x40); // ✅ New bitmask value for MOVE
 
     private final int value;
 
@@ -26,6 +27,7 @@ public enum Property {
             case "WIN": return WIN;
             case "SINK": return SINK;
             case "DEFEAT": return DEFEAT;
+            case "MOVE": return MOVE; // ✅ Handle MOVE parsing
             default:
                 throw new IllegalArgumentException("Unknown property: " + s);
         }

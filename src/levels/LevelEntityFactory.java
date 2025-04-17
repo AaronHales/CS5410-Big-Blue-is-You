@@ -30,7 +30,7 @@ public class LevelEntityFactory {
         e.addComponent(new Position(x, y));
         e.addComponent(new Sprite("BigBlue.png"));
         e.addComponent(new Noun(Noun.Type.BIGBLUE));
-        e.addComponent(new KeyboardControlled());
+//        e.addComponent(new KeyboardControlled());
         RuleComponent rc = new RuleComponent();
         rc.addProperty(Property.YOU);
         e.addComponent(rc);
