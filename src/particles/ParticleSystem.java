@@ -10,30 +10,33 @@ import org.joml.Matrix4f;
 
 import java.util.*;
 
-public class ParticleSystem extends ecs.Systems.System{
+public class ParticleSystem extends ecs.Systems.System {
     private final List<Particle> particles = new ArrayList<>();
-    private static final float TILE_SIZE = 1.0f / 12.0f; // assuming 12x12 grid for -1 to 1 mapping
+    private static final float TILE_SIZE = 1.0f / 12.0f;  // assuming 12x12 tile grid
     private static final float PARTICLE_SIZE = TILE_SIZE / 2.5f;
 
-    private int levelWidth = 16;
-    private int levelHeight = 16;
+    private final Map<PositionKey, Float> recentRuleEffects = new HashMap<>();
+    private static final float RULE_EFFECT_COOLDOWN = 0.5f;
 
-    public void setLevelDimensions(int width, int height) {
-        this.levelWidth = width;
-        this.levelHeight = height;
-    }
 
     public void update(double deltaTime) {
         particles.removeIf(p -> !p.update(deltaTime));
+
+        // Update cooldown timers for debounced rule tiles
+        recentRuleEffects.entrySet().removeIf(entry -> entry.getValue() <= 0);
+        for (var entry : recentRuleEffects.entrySet()) {
+            recentRuleEffects.put(entry.getKey(), entry.getValue() - (float) deltaTime);
+        }
     }
+
 
     public void submitRenderOps(RenderQueue queue) {
         for (Particle p : particles) {
             queue.add(new Rectangle(
-                    p.x, p.y,
-                    PARTICLE_SIZE, PARTICLE_SIZE,
-                    0.05f),
-                    new Color(p.r, p.g, p.b),
+                            p.x, p.y,
+                            PARTICLE_SIZE, PARTICLE_SIZE,
+                            0.05f),
+                    new Color(p.r, p.g, p.b, p.a),
                     new Matrix4f()
             );
         }
@@ -55,17 +58,34 @@ public class ParticleSystem extends ecs.Systems.System{
         spawnParticles(position, 6, 2.0f, "white");
     }
 
+    public void ruleTextEffect(Position position) {
+        PositionKey key = new PositionKey(position);
+        if (recentRuleEffects.containsKey(key)) return;
+
+        recentRuleEffects.put(key, RULE_EFFECT_COOLDOWN);
+
+        int count = 10;
+        float life = 1.2f;
+        String color = "lime";
+
+        float centerX = -1 + (position.getX() + 0.5f) * TILE_SIZE * 2;
+        float centerY = -1 + (position.getY() + 0.5f) * TILE_SIZE * 2;
+        float radius = TILE_SIZE * 0.6f;
+
+        for (int i = 0; i < count; i++) {
+            double angle = 2 * Math.PI * i / count;
+            float px = centerX + (float) Math.cos(angle) * radius;
+            float py = centerY + (float) Math.sin(angle) * radius;
+            particles.add(new Particle(px, py, life, getRGBA(color)));
+        }
+    }
+
+
     private void spawnParticles(Position position, int count, float life, String color) {
         float centerX = -1 + (position.getX() + 0.5f) * TILE_SIZE * 2;
         float centerY = -1 + (position.getY() + 0.5f) * TILE_SIZE * 2;
 
-        float[] rgb = switch (color.toLowerCase()) {
-            case "red" -> new float[]{1f, 0f, 0f};
-            case "gray" -> new float[]{0.6f, 0.6f, 0.6f};
-            case "yellow" -> new float[]{1f, 1f, 0f};
-            case "white" -> new float[]{1f, 1f, 1f};
-            default -> new float[]{1f, 0f, 1f}; // fallback magenta
-        };
+        float[] rgb = getRGBA(color);
 
         for (int i = 0; i < count; i++) {
             particles.add(new Particle(centerX, centerY, life, rgb));
@@ -74,20 +94,27 @@ public class ParticleSystem extends ecs.Systems.System{
 
     @Override
     public void update(World world, double deltaTime) {
-
+        this.update(deltaTime);  // call local update
     }
 
-    public void ruleTextEffect(Position position) {
-        spawnParticles(position, 6, 1.2f, "yellow");
+    private float[] getRGBA(String color) {
+        return switch (color.toLowerCase()) {
+            case "red" -> new float[]{Color.RED.r, Color.RED.g, Color.RED.b, Color.RED.a};
+            case "gray" -> new float[]{Color.GRAY.r, Color.GRAY.g, Color.GRAY.b, Color.GRAY.a};
+            case "yellow" -> new float[]{Color.YELLOW.r, Color.YELLOW.g, Color.YELLOW.b, Color.YELLOW.a};
+            case "white" -> new float[]{Color.WHITE.r, Color.WHITE.g, Color.WHITE.b, Color.WHITE.a};
+            case "lime" -> new float[]{Color.LIME.r, Color.LIME.g, Color.LIME.b, Color.LIME.a};
+            case "blue" -> new float[]{Color.BLUE.r, Color.BLUE.g, Color.BLUE.b, Color.BLUE.a};
+            default -> new float[]{Color.MAGENTA.r, Color.MAGENTA.g, Color.MAGENTA.b, Color.MAGENTA.a};  // fallback magenta
+        };
     }
-
 
     public static class Particle {
         float x, y;
         float dx, dy;
         float lifetime;
         float age = 0;
-        float r, g, b;
+        float r, g, b, a;
 
         public Particle(float x, float y, float lifetime, float[] color) {
             this.x = x;
@@ -96,6 +123,7 @@ public class ParticleSystem extends ecs.Systems.System{
             this.r = color[0];
             this.g = color[1];
             this.b = color[2];
+            this.a = color[3];  // Translucent by default
 
             double angle = Math.random() * 2 * Math.PI;
             double speed = Math.random() * 0.03 + 0.01;
@@ -112,4 +140,25 @@ public class ParticleSystem extends ecs.Systems.System{
             return true;
         }
     }
+
+    private static class PositionKey {
+        int x, y;
+
+        PositionKey(Position p) {
+            this.x = p.getX();
+            this.y = p.getY();
+        }
+
+        @Override public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof PositionKey)) return false;
+            PositionKey other = (PositionKey) o;
+            return x == other.x && y == other.y;
+        }
+
+        @Override public int hashCode() {
+            return Objects.hash(x, y);
+        }
+    }
+
 }

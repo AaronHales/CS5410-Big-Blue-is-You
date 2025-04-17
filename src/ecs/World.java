@@ -170,7 +170,7 @@ public class World {
     }
 
     public void updateAll(double deltaTime) {
-        for (ecs.Systems.System system : systems) {
+        for (ecs.Systems.System system : new ArrayList<>(systems)) {
             system.update(this, deltaTime);
         }
     }

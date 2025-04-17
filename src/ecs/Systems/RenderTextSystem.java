@@ -31,14 +31,26 @@ public class RenderTextSystem extends System {
             float drawX = offsetX + tileSize * pos.getX() + tileSize / 2;
             float drawY = offsetY + tileSize * pos.getY() + tileSize / 2;
 
+            Color tint = Color.WHITE;
+
+            if (world.hasComponent(e, RuleVisualTag.class)) {
+                RuleVisualTag tag = world.getComponent(e, RuleVisualTag.class);
+                if (tag.getType() == RuleVisualTag.Type.VALID) {
+                    tint = Color.LIME;
+                } else if (tag.getType() == RuleVisualTag.Type.IGNORED) {
+                    tint = Color.GRAY;
+                }
+            }
+
+
             if (world.hasComponent(e, Sprite.class)) {
                 Sprite sprite = world.getComponent(e, Sprite.class);
                 if (!sprite.spriteName.toLowerCase().startsWith("word-")) continue;
-                spriteManager.draw(graphics, sprite.spriteName, drawX, drawY, Color.WHITE);
+                spriteManager.draw(graphics, sprite.spriteName, drawX, drawY, tint);
             } else if (world.hasComponent(e, AnimatedSpriteComponent.class)) {
                 AnimatedSpriteComponent anim = world.getComponent(e, AnimatedSpriteComponent.class);
                 anim.sprite.setCenter(drawX, drawY);
-                anim.sprite.draw(graphics, Color.WHITE);
+                anim.sprite.draw(graphics, tint);
             }
         }
     }

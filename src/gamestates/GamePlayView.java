@@ -87,9 +87,9 @@ public class GamePlayView extends GameStateView {
             restartLevel();
         });
 
-        inputKeyboard.registerCommand(GLFW.GLFW_KEY_Z, true, (elapsedTime) -> {
-            undoLastMove();
-        });
+//        inputKeyboard.registerCommand(GLFW.GLFW_KEY_Z, true, (elapsedTime) -> {
+//            undoLastMove();
+//        });
     }
 
     @Override
@@ -123,6 +123,7 @@ public class GamePlayView extends GameStateView {
 
         if (world != null) {
             world.updateAll(elapsedTime);
+            java.lang.System.err.println(world.getEntities().get(73).getAllComponents());
 
             for (ecs.Systems.System system : world.getSystems()) {
                 if (system instanceof ConditionSystem cs && cs.isLevelWon() && !levelWon) {

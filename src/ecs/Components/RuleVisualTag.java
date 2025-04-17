@@ -5,10 +5,14 @@ public class RuleVisualTag extends Component {
         VALID, IGNORED
     }
 
-    public final Type type;
+    private final Type type;
 
     public RuleVisualTag(Type type) {
         this.type = type;
+    }
+
+    public Type getType() {
+        return type;
     }
 
     @Override

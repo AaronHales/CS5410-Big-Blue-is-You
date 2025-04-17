@@ -50,4 +50,32 @@ public class Color {
     public static final Color YELLOW = new Color(1, 1, 0);
 
     public static final Color CORNFLOWER_BLUE = new Color(100 / 255f, 149 / 255f, 237 / 255f);
+
+    // my colors
+    // === New Extended Palette ===
+    public static final Color ORANGE = new Color(1.0f, 0.55f, 0.0f);
+    public static final Color PINK = new Color(1.0f, 0.4f, 0.7f);
+    public static final Color CYAN = new Color(0.0f, 1.0f, 1.0f);
+    public static final Color MAGENTA = new Color(1.0f, 0.0f, 1.0f);
+
+    public static final Color GRAY = new Color(0.6f, 0.6f, 0.6f);
+    public static final Color LIGHT_GRAY = new Color(0.8f, 0.8f, 0.8f);
+    public static final Color DARK_GRAY = new Color(0.3f, 0.3f, 0.3f);
+
+    public static final Color GOLD = new Color(1.0f, 0.84f, 0.0f);
+    public static final Color LIME = new Color(0.75f, 1.0f, 0.0f);
+    public static final Color SKY_BLUE = new Color(0.53f, 0.81f, 0.98f);
+    public static final Color AQUA = new Color(0.0f, 0.8f, 0.8f);
+    public static final Color TEAL = new Color(0.0f, 0.5f, 0.5f);
+
+    // === Translucent Variants ===
+    public static final Color TRANSLUCENT_WHITE = new Color(1f, 1f, 1f, 0.4f);
+    public static final Color TRANSLUCENT_YELLOW = new Color(1f, 1f, 0f, 0.3f);
+    public static final Color TRANSLUCENT_RED = new Color(1f, 0f, 0f, 0.2f);
+    public static final Color TRANSLUCENT_LIME = new Color(0.75f, 1f, 0f, 0.3f);
+    public static final Color TRANSLUCENT_BLUE = new Color(0f, 0.5f, 1f, 0.3f);
+    public static final Color TRANSLUCENT_GRAY = new Color(0.6f, 0.6f, 0.6f, 0.25f);
+    public static final Color TRANSLUCENT_PURPLE = new Color(0.5f, 0f, 0.5f, 0.3f);
+    public static final Color TRANSLUCENT_CYAN = new Color(0f, 1f, 1f, 0.2f);
+
 }

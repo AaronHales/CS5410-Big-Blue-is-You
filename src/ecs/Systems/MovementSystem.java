@@ -23,19 +23,25 @@ public class MovementSystem extends System {
 //    @Override
     public void update(double deltaTime) {
         if (winTriggered) return;
-
         // --- Player-controlled movement ---
         for (Entity entity : new ArrayList<>(world.getEntities())) {
             if (world.hasComponent(entity, KeyboardControlled.class) && world.hasComponent(entity, Position.class)) {
                 KeyboardControlled input = world.getComponent(entity, KeyboardControlled.class);
                 Direction moveDir = input.getDirection();
-
                 if (moveDir != null) {
+                    java.lang.System.out.println("moveDir != null");
                     Position pos = world.getComponent(entity, Position.class);
+                    java.lang.System.out.println(pos);
                     int newX = pos.getX() + moveDir.dx;
                     int newY = pos.getY() + moveDir.dy;
 
-                    if (tryPush(newX, newY, moveDir.dx, moveDir.dy) && !isBlocked(newX, newY)) {
+                    boolean isBlocked1 = !isBlocked(newX, newY);
+                    boolean tryPush1 = tryPush(newX, newY, moveDir.dx, moveDir.dy);
+                    java.lang.System.out.printf("!isBlocked: %b, tryPush: %b", isBlocked1, tryPush1);
+                    if (tryPush1 && isBlocked1) {
+                        if (world.getSystem(UndoSystem.class) != null) {
+                            world.getSystem(UndoSystem.class).push(world);
+                        }
                         pos.set(newX, newY);
                         world.updateEntityPositionIndex(entity, newX, newY);
                         checkSink(entity, newX, newY);
@@ -100,7 +106,8 @@ public class MovementSystem extends System {
 
         for (Entity e : new ArrayList<>(entities)) {
             RuleComponent rule = world.getComponent(e, RuleComponent.class);
-            if (rule == null || !rule.hasProperty(Property.PUSH)) return false;
+            if (rule == null) continue;
+            if (!rule.hasProperty(Property.PUSH)) return false;
 
             Position pos = world.getComponent(e, Position.class);
             int nextX = pos.getX() + dx;

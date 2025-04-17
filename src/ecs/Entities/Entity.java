@@ -21,6 +21,12 @@ public final class Entity {
         id = nextId++;
     }
 
+    public Entity(long id) {
+        this.id = id;
+//        this.components = new HashMap<>();
+    }
+
+
     public long getId() {
         return id;
     }

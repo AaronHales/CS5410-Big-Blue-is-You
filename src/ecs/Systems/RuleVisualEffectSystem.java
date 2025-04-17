@@ -23,7 +23,7 @@ public class RuleVisualEffectSystem extends System {
 
         for (Entity e : entities) {
             RuleVisualTag tag = world.getComponent(e, RuleVisualTag.class);
-            if (tag.type != RuleVisualTag.Type.VALID) continue;
+            if (tag.getType() != RuleVisualTag.Type.VALID) continue;
 
             Position pos = world.getComponent(e, Position.class);
             particleSystem.ruleTextEffect(pos);
