@@ -132,6 +132,29 @@ public class World {
         }
     }
 
+    public void updateEntityPositionIndex(Entity entity, int newX, int newY) {
+        Position oldPos = getComponent(entity, Position.class);
+        if (oldPos == null) return;
+
+        // Remove from old position
+        Vector2i oldKey = new Vector2i(oldPos.getX(), oldPos.getY());
+        List<Entity> oldList = positionIndex.get(oldKey);
+        if (oldList != null) {
+            oldList.remove(entity);
+            if (oldList.isEmpty()) {
+                positionIndex.remove(oldKey);
+            }
+        }
+
+        // Update the Position component
+        oldPos.set(newX, newY);
+
+        // Add to new position
+        Vector2i newKey = new Vector2i(newX, newY);
+        positionIndex.computeIfAbsent(newKey, k -> new ArrayList<>()).add(entity);
+    }
+
+
     private void updateEntityPositionIndex(Entity entity, Position newPos) {
         removeEntity(entity); // Remove to re-index
         addEntity(entity);    // Add it again to ensure the index is updated

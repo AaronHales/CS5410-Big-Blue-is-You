@@ -5,24 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8858ee06-ea5c-4baa-8898-f17b08ca1729" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/ecs/Components/RuleVisualTag.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ecs/Systems/RuleVisualEffectSystem.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ecs/Components/AnimatedSpriteComponent.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Components/AnimatedSpriteComponent.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ecs/Systems/ConditionSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/ConditionSystem.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ecs/Components/KeyboardControlled.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Components/KeyboardControlled.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ecs/Systems/InputSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/InputSystem.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ecs/Systems/MovementSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/MovementSystem.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ecs/Systems/RenderFloorSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/RenderFloorSystem.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ecs/Systems/RenderObjectsSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/RenderObjectsSystem.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ecs/Systems/RenderSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/RenderSystem.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ecs/Systems/RenderTextSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/RenderTextSystem.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ecs/Systems/RuleSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/RuleSystem.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ecs/World.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/World.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/gamestates/GamePlayView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gamestates/GamePlayView.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/levels/EntityFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/levels/EntityFactory.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/levels/LevelEntityFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/levels/LevelEntityFactory.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/levels/LevelLoader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/levels/LevelLoader.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/particles/ParticleSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/particles/ParticleSystem.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

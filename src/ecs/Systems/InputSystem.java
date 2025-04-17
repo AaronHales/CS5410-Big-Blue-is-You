@@ -1,8 +1,6 @@
 package ecs.Systems;
 
-import ecs.Components.Position;
-import ecs.Components.RuleComponent;
-import ecs.Components.Property;
+import ecs.Components.KeyboardControlled;
 import ecs.Entities.Entity;
 import ecs.World;
 import input.ControlConfig;
@@ -37,34 +35,12 @@ public class InputSystem extends System {
 
         Direction direction = getDirectionFromInput();
 
-
         if (direction != null) {
-            // Get all YOU-tagged entities
-            List<Entity> entities = world.getEntities();
-            for (Entity e : entities) {
-
-                if (e.hasComponent(RuleComponent.class) && e.hasComponent(Position.class)) {
-                    RuleComponent rc = e.getComponent(RuleComponent.class);
-                    if (rc.hasProperty(Property.YOU)) {
-                        Position pos = e.getComponent(Position.class);
-                        moveCooldown = MOVE_DELAY;
-
-
-                        int oldX = pos.getX();
-                        int oldY = pos.getY();
-
-                        int newX = oldX + direction.dx;
-                        int newY = oldY + direction.dy;
-//                        java.lang.System.out.println("Moving entity " + e.getId() + " from " + oldX + "," + oldY);
-
-
-                        // Save for undo
-                        undoSystem.push(world);
-
-                        // Move
-                        pos.set(newX, newY);
-                    }
-                }
+            List<Entity> controlled = world.getEntitiesWithComponent(KeyboardControlled.class);
+            for (Entity e : controlled) {
+                KeyboardControlled kc = world.getComponent(e, KeyboardControlled.class);
+                kc.setDirection(direction);
+                moveCooldown = MOVE_DELAY;
             }
         }
 
