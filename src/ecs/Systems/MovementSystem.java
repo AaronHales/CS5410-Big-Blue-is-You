@@ -23,41 +23,92 @@ public class MovementSystem extends System {
     public void update(double deltaTime) {
         if (winTriggered) return;
 
-        List<Entity> controlledEntities = world.getEntitiesWithComponent(
-                KeyboardControlled.class,
-                Position.class,
-                Movable.class
-        );
-
-        for (Entity entity : controlledEntities) {
-            Direction moveDir = world.getComponent(entity, KeyboardControlled.class).getDirection();
-            if (moveDir != null) {
+        for (Entity entity : world.getEntities()) {
+//            java.lang.System.out.println(world.getEntities().get(73).getAllComponents());
+            if (world.hasComponent(entity, KeyboardControlled.class) && world.hasComponent(entity, Position.class)) {
+                KeyboardControlled input = world.getComponent(entity, KeyboardControlled.class);
+                Direction moveDir = input.getDirection();
                 Position position = world.getComponent(entity, Position.class);
-                int newX = position.getX() + moveDir.dx;
-                int newY = position.getY() + moveDir.dy;
+//                java.lang.System.out.println("moveDir != null: " + moveDir != null);
+                if (moveDir != null) {
+                    java.lang.System.out.println(world.getEntitiesAtPosition(position.getX()+moveDir.dx, position.getY() + moveDir.dy));
 
-                if (!isBlocked(newX, newY)) {
-                    position.set(newX, newY);
-                    checkSink(entity, newX, newY);
-                    checkDefeat(entity, newX, newY);
-                    checkWin(entity, newX, newY);
+                    int newX = position.getX() + moveDir.dx;
+                    int newY = position.getY() + moveDir.dy;
+
+                    if (tryPush(newX, newY, moveDir.dx, moveDir.dy) && !isBlocked(newX, newY)) {
+                        position.set(newX, newY);
+                        checkSink(entity, newX, newY);
+                        checkDefeat(entity, newX, newY);
+                        checkWin(entity, newX, newY);
+                    }
+
+
+                    input.clearDirection();
                 }
-
-                world.getComponent(entity, KeyboardControlled.class).clearDirection();
             }
         }
+
     }
 
     private boolean isBlocked(int x, int y) {
         List<Entity> entitiesAtTarget = world.getEntitiesAtPosition(x, y);
+        java.lang.System.out.printf("entity: %s\n", entitiesAtTarget);
+
+        boolean hasFloor = false;
+
         for (Entity e : entitiesAtTarget) {
             RuleComponent rule = world.getComponent(e, RuleComponent.class);
             if (rule != null && rule.hasProperty(Property.STOP)) {
                 return true;
             }
+
+
+            if (e.hasComponent(Sprite.class)) {
+                String name = e.getComponent(Sprite.class).spriteName.toLowerCase();
+                if (name.contains("floor")) {
+                    hasFloor = true;
+                }
+            }
+
+            if (e.hasComponent(AnimatedSpriteComponent.class)) {
+                String name = e.getComponent(AnimatedSpriteComponent.class).name.toLowerCase();
+                if (name.contains("floor")) {
+                    hasFloor = true;
+                }
+            }
         }
-        return false;
+
+        // Block movement if no floor tile is present
+        return !hasFloor;
     }
+
+    private boolean tryPush(int x, int y, int dx, int dy) {
+        List<Entity> entities = world.getEntitiesAtPosition(x, y);
+        if (entities.isEmpty()) return true;
+
+        for (Entity e : entities) {
+            RuleComponent rule = world.getComponent(e, RuleComponent.class);
+            if (rule == null || !rule.hasProperty(Property.PUSH)) {
+                return false;
+            }
+
+            Position pos = world.getComponent(e, Position.class);
+            int newX = pos.getX() + dx;
+            int newY = pos.getY() + dy;
+
+            if (!tryPush(newX, newY, dx, dy)) {
+                return false;
+            }
+
+            // Recursive push succeeded, now update this position
+            pos.set(newX, newY);
+        }
+
+        return true;
+    }
+
+
 
     private void checkSink(Entity mover, int x, int y) {
         List<Entity> entitiesAtTarget = world.getEntitiesAtPosition(x, y);
@@ -114,6 +165,6 @@ public class MovementSystem extends System {
 
     @Override
     public void update(World world, double deltaTime) {
-
+        this.update(deltaTime);
     }
 }

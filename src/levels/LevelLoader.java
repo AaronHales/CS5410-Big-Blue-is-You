@@ -19,7 +19,6 @@ public class LevelLoader {
                 int width = Integer.parseInt(size[0].trim());
                 int height = Integer.parseInt(size[1].trim());
 
-                // ✅ Set level dimensions in the world
                 world.setLevelDimensions(width, height);
 
                 char[][] background = new char[height][width];

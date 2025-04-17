@@ -1,7 +1,6 @@
 package ecs.Systems;
 
-import ecs.Components.Position;
-import ecs.Components.Sprite;
+import ecs.Components.*;
 import ecs.Entities.Entity;
 import ecs.World;
 import edu.usu.graphics.Color;
@@ -24,16 +23,25 @@ public class RenderTextSystem extends System {
         float offsetX = -tileSize * world.getLevelWidth() / 2.0f;
         float offsetY = -tileSize * world.getLevelHeight() / 2.0f;
 
-        for (Entity e : world.getEntitiesWithComponent(Position.class, Sprite.class)) {
-            Sprite sprite = world.getComponent(e, Sprite.class);
+        // ✅ Now using ECS query again!
+        List<Entity> entities = world.getEntitiesWithComponent(Position.class);
+
+        for (Entity e : entities) {
             Position pos = world.getComponent(e, Position.class);
             float drawX = offsetX + tileSize * pos.getX() + tileSize / 2;
             float drawY = offsetY + tileSize * pos.getY() + tileSize / 2;
 
-            spriteManager.draw(graphics, sprite.spriteName, drawX, drawY, Color.WHITE);
+            if (world.hasComponent(e, Sprite.class)) {
+                Sprite sprite = world.getComponent(e, Sprite.class);
+                if (!sprite.spriteName.toLowerCase().startsWith("word-")) continue;
+                spriteManager.draw(graphics, sprite.spriteName, drawX, drawY, Color.WHITE);
+            } else if (world.hasComponent(e, AnimatedSpriteComponent.class)) {
+                AnimatedSpriteComponent anim = world.getComponent(e, AnimatedSpriteComponent.class);
+                anim.sprite.setCenter(drawX, drawY);
+                anim.sprite.draw(graphics, Color.WHITE);
+            }
         }
     }
-
 
     @Override
     public void update(World world, double deltaTime) {

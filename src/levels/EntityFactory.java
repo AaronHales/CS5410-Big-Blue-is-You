@@ -9,8 +9,8 @@ public class EntityFactory {
         switch (tileCode) {
             // Background elements
             case 'l': return LevelEntityFactory.createFloor(x, y);
-            case 'g': return LevelEntityFactory.createFloor(x, y);  // Grass — treated like background
-            case 'h': return LevelEntityFactory.createFloor(x, y);  // Hedge — background-style
+            case 'g': return LevelEntityFactory.createGrass(x, y);  // Grass — treated like background
+            case 'h': return LevelEntityFactory.createHedge(x, y);  // Hedge — background-style
 
             // Object Nouns
             case 'w': return LevelEntityFactory.createWall(x, y);

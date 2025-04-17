@@ -1,41 +1,52 @@
 package ecs;
 
-import ecs.Components.Position;
 import ecs.Components.Component;
+import ecs.Components.Position;
 import ecs.Entities.Entity;
-import ecs.Systems.System;
+import org.joml.Vector2i;
 
 import java.util.*;
 
 public class World {
-    private final List<System> systems = new ArrayList<>();
     private final List<Entity> entities = new ArrayList<>();
-    private final Map<Entity, Map<Class<? extends Component>, Component>> components = new HashMap<>();
+    private final List<ecs.Systems.System> systems = new ArrayList<>();
 
-    private int levelWidth;
-    private int levelHeight;
+    private final Map<Entity, Map<Class<? extends Component>, Component>> entityComponents = new HashMap<>();
+    private final Map<Vector2i, List<Entity>> positionIndex = new HashMap<>();
 
-    public void addSystem(System system) {
-        systems.add(system);
-    }
+    private int levelWidth = 16;
+    private int levelHeight = 16;
 
     public void addEntity(Entity entity) {
         entities.add(entity);
-        components.put(entity, new HashMap<>());
+
+        Map<Class<? extends Component>, Component> components = new HashMap<>();
+        for (Component c : entity.getAllComponents()) {
+            components.put(c.getClass(), c);
+        }
+        entityComponents.put(entity, components);
+
+        Position pos = entity.getComponent(Position.class);
+        if (pos != null) {
+            Vector2i key = new Vector2i(pos.getX(), pos.getY());
+            positionIndex.computeIfAbsent(key, k -> new ArrayList<>()).add(entity);
+        }
     }
 
     public void removeEntity(Entity entity) {
         entities.remove(entity);
-        components.remove(entity);
-    }
+        entityComponents.remove(entity);
 
-    public void notifyEntityUpdated(Entity entity) {
-        // Placeholder if needed for future optimization
-    }
-
-    public void updateAll(double deltaTime) {
-        for (System system : systems) {
-            system.update(this, deltaTime);
+        Position pos = entity.getComponent(Position.class);
+        if (pos != null) {
+            Vector2i key = new Vector2i(pos.getX(), pos.getY());
+            List<Entity> atPos = positionIndex.get(key);
+            if (atPos != null) {
+                atPos.remove(entity);
+                if (atPos.isEmpty()) {
+                    positionIndex.remove(key);
+                }
+            }
         }
     }
 
@@ -43,50 +54,34 @@ public class World {
         return entities;
     }
 
-    public List<System> getSystems() {
-        return systems;
+    public List<Entity> getEntitiesAtPosition(int x, int y) {
+        Vector2i key = new Vector2i(x, y);
+        return positionIndex.getOrDefault(key, Collections.emptyList());
     }
 
-    public <T extends ecs.Systems.System> T getSystem(Class<T> systemClass) {
-        for (System system : systems) {
-            if (systemClass.isInstance(system)) {
-                return systemClass.cast(system);
+    public <T extends Component> T getComponent(Entity e, Class<T> type) {
+        Map<Class<? extends Component>, Component> map = entityComponents.get(e);
+        if (map != null) {
+            Component c = map.get(type);
+            if (type.isInstance(c)) {
+                return type.cast(c);
             }
         }
         return null;
     }
 
-    public <T extends Component> void addComponent(Entity entity, T component) {
-        components.get(entity).put(component.getClass(), component);
+    public boolean hasComponent(Entity e, Class<? extends Component> type) {
+        Map<Class<? extends Component>, Component> map = entityComponents.get(e);
+        return map != null && map.containsKey(type);
     }
 
-    public <T extends Component> T getComponent(Entity entity, Class<T> componentClass) {
-        Component component = components.get(entity).get(componentClass);
-        return componentClass.cast(component);
-    }
-
-    public <T extends Component> boolean hasComponent(Entity entity, Class<T> componentClass) {
-        return components.get(entity).containsKey(componentClass);
-    }
-
-    public <T extends Component> T getOrCreateComponent(Entity entity, Class<T> componentClass) {
-        if (!hasComponent(entity, componentClass)) {
-            try {
-                T component = componentClass.getDeclaredConstructor().newInstance();
-                addComponent(entity, component);
-            } catch (Exception e) {
-                throw new RuntimeException("Failed to create component: " + componentClass, e);
-            }
-        }
-        return getComponent(entity, componentClass);
-    }
-
-    public List<Entity> getEntitiesWithComponent(Class<?>... requiredComponents) {
+    @SafeVarargs
+    public final List<Entity> getEntitiesWithComponent(Class<? extends Component>... types) {
         List<Entity> result = new ArrayList<>();
         for (Entity e : entities) {
             boolean hasAll = true;
-            for (Class<?> c : requiredComponents) {
-                if (!components.get(e).containsKey(c)) {
+            for (Class<? extends Component> type : types) {
+                if (!hasComponent(e, type)) {
                     hasAll = false;
                     break;
                 }
@@ -96,24 +91,82 @@ public class World {
         return result;
     }
 
-    public List<Entity> getEntitiesAtPosition(int x, int y) {
-        List<Entity> result = new ArrayList<>();
-        for (Entity e : entities) {
-            if (hasComponent(e, Position.class)) {
-                Position p = getComponent(e, Position.class);
-                if (p.getX() == x && p.getY() == y) {
-                    result.add(e);
-                }
+    public <T extends Component> T getOrCreateComponent(Entity e, Class<T> type) {
+        if (hasComponent(e, type)) {
+            return getComponent(e, type);
+        } else {
+            try {
+                T newComp = type.getDeclaredConstructor().newInstance();
+                addComponent(e, newComp);
+                return newComp;
+            } catch (Exception ex) {
+                throw new RuntimeException("Failed to create component: " + type.getSimpleName(), ex);
             }
         }
-        return result;
+    }
+
+    public void addComponent(Entity e, Component component) {
+        entityComponents.computeIfAbsent(e, k -> new HashMap<>()).put(component.getClass(), component);
+        e.addComponent(component);
+
+        if (component instanceof Position pos) {
+            updateEntityPositionIndex(e, pos);
+        }
+    }
+
+    public void removeComponent(Entity e, Class<? extends Component> type) {
+        Map<Class<? extends Component>, Component> map = entityComponents.get(e);
+        if (map != null) {
+            map.remove(type);
+        }
+        e.removeComponent(type);
+
+        if (type == Position.class) {
+            // Remove from position index
+            Position old = e.getComponent(Position.class);
+            if (old != null) {
+                Vector2i key = new Vector2i(old.getX(), old.getY());
+                List<Entity> list = positionIndex.get(key);
+                if (list != null) list.remove(e);
+            }
+        }
+    }
+
+    private void updateEntityPositionIndex(Entity entity, Position newPos) {
+        removeEntity(entity); // Remove to re-index
+        addEntity(entity);    // Add it again to ensure the index is updated
+    }
+
+    // --- System Management ---
+    public void addSystem(ecs.Systems.System system) {
+        systems.add(system);
+    }
+
+    public List<ecs.Systems.System> getSystems() {
+        return systems;
+    }
+
+    public void updateAll(double deltaTime) {
+        for (ecs.Systems.System system : systems) {
+            system.update(this, deltaTime);
+        }
+    }
+
+    public <T extends ecs.Systems.System> T getSystem(Class<T> type) {
+        for (ecs.Systems.System s : systems) {
+            if (type.isInstance(s)) return type.cast(s);
+        }
+        return null;
     }
 
     public void clear() {
         entities.clear();
-        components.clear();
+        entityComponents.clear();
+        positionIndex.clear();
+        systems.clear();
     }
 
+    // --- Level Size ---
     public void setLevelDimensions(int width, int height) {
         this.levelWidth = width;
         this.levelHeight = height;
@@ -126,5 +179,4 @@ public class World {
     public int getLevelHeight() {
         return levelHeight;
     }
-
 }

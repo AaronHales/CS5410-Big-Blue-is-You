@@ -1,12 +1,13 @@
 package ecs.Systems;
 
-import ecs.World;
-import ecs.Entities.*;
-import ecs.Systems.*;
 import ecs.Components.*;
+import ecs.Entities.Entity;
+import ecs.World;
 import edu.usu.graphics.Color;
 import edu.usu.graphics.Graphics2D;
 import Render.SpriteManager;
+
+import java.util.List;
 
 public class RenderSystem extends System {
     private final long window;
@@ -17,25 +18,32 @@ public class RenderSystem extends System {
         this.spriteManager = spriteManager;
     }
 
-    public void update(World world, double deltaTime, Graphics2D graphics) {
+    public void update(World world, Graphics2D graphics, double deltaTime) {
         float tileSize = 1.0f / 16.0f;
         float offsetX = -tileSize * world.getLevelWidth() / 2.0f;
         float offsetY = -tileSize * world.getLevelHeight() / 2.0f;
 
-        for (Entity e : world.getEntitiesWithComponent(Position.class, Sprite.class)) {
-            Sprite sprite = world.getComponent(e, Sprite.class);
+        List<Entity> entities = world.getEntitiesWithComponent(Position.class);
+//        java.lang.System.out.printf("entities len: %d, %s\n", entities.size(), entities);
+
+        for (Entity e : entities) {
             Position pos = world.getComponent(e, Position.class);
             float drawX = offsetX + tileSize * pos.getX() + tileSize / 2;
             float drawY = offsetY + tileSize * pos.getY() + tileSize / 2;
 
-            spriteManager.draw(graphics, sprite.spriteName, drawX, drawY, Color.WHITE);
+            if (e.hasComponent(Sprite.class)) {
+                Sprite sprite = world.getComponent(e, Sprite.class);
+                spriteManager.draw(graphics, sprite.spriteName, drawX, drawY, Color.WHITE);
+            } else if (e.hasComponent(AnimatedSpriteComponent.class)) {
+                AnimatedSpriteComponent anim = world.getComponent(e, AnimatedSpriteComponent.class);
+                anim.sprite.setCenter(drawX, drawY);
+                anim.sprite.draw(graphics, Color.WHITE);
+            }
         }
     }
 
-
-
     @Override
     public void update(World world, double deltaTime) {
-
+        // not used — this is a render-only system
     }
 }

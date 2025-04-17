@@ -15,6 +15,14 @@ public class ParticleSystem extends ecs.Systems.System{
     private static final float TILE_SIZE = 1.0f / 12.0f; // assuming 12x12 grid for -1 to 1 mapping
     private static final float PARTICLE_SIZE = TILE_SIZE / 2.5f;
 
+    private int levelWidth = 16;
+    private int levelHeight = 16;
+
+    public void setLevelDimensions(int width, int height) {
+        this.levelWidth = width;
+        this.levelHeight = height;
+    }
+
     public void update(double deltaTime) {
         particles.removeIf(p -> !p.update(deltaTime));
     }
@@ -68,6 +76,11 @@ public class ParticleSystem extends ecs.Systems.System{
     public void update(World world, double deltaTime) {
 
     }
+
+    public void ruleTextEffect(Position position) {
+        spawnParticles(position, 6, 1.2f, "yellow");
+    }
+
 
     public static class Particle {
         float x, y;

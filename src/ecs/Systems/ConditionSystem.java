@@ -107,6 +107,6 @@ public class ConditionSystem extends System {
 
     @Override
     public void update(World world, double deltaTime) {
-
+        this.update(deltaTime);
     }
 }

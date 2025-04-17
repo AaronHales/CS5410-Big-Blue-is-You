@@ -58,6 +58,7 @@ public class GamePlayView extends GameStateView {
 
         List<Entity> levelEntities = levels.LevelLoader.loadLevels("resources/levels/level-1.bbiy", world);
         for (Entity entity : levelEntities) {
+            java.lang.System.out.printf("entity: %s, spriteName: %s\n", entity, entity.hasComponent(Sprite.class) ? entity.getComponent(Sprite.class).spriteName : entity.getComponent(AnimatedSpriteComponent.class).name);
             world.addEntity(entity);
         }
 
@@ -153,20 +154,6 @@ public class GamePlayView extends GameStateView {
         renderFloorSystem.update(world, elapsedTime, graphics);
         renderObjectsSystem.update(world, elapsedTime, graphics);
         renderTextSystem.update(world, elapsedTime, graphics);
-
-        for (Entity e : world.getEntities()) {
-            if (e.hasComponent(Position.class) && e.hasComponent(Sprite.class)) {
-                Position pos = e.getComponent(Position.class);
-                Sprite sprite = e.getComponent(Sprite.class);
-                float tileSize = 1.0f / 16.0f;
-                float offsetX = -tileSize * world.getLevelWidth() / 2.0f;
-                float offsetY = -tileSize * world.getLevelHeight() / 2.0f;
-                float drawX = offsetX + tileSize * pos.getX() + tileSize / 2;
-                float drawY = offsetY + tileSize * pos.getY() + tileSize / 2;
-                spriteManager.draw(graphics, sprite.spriteName, drawX, drawY, Color.WHITE);
-            }
-        }
-
 
         if (levelWon) {
             graphics.drawTextByHeight(
