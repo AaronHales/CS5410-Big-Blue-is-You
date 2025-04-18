@@ -4,6 +4,7 @@ import ecs.Components.*;
 import ecs.Entities.Entity;
 import edu.usu.graphics.AnimatedSprite;
 import Render.SpriteManager;
+import edu.usu.graphics.Color;
 
 public class LevelEntityFactory {
     private static SpriteManager spriteManager;
@@ -15,7 +16,7 @@ public class LevelEntityFactory {
     public static Entity createRock(int x, int y) {
         Entity e = new Entity();
         e.addComponent(new Position(x, y));
-        e.addComponent(createAnimated("rock"));
+        e.addComponent(createAnimated("rock", Color.BROWN, 0));
         e.addComponent(new Noun(Noun.Type.ROCK));
 
         RuleComponent rc = new RuleComponent();
@@ -28,7 +29,7 @@ public class LevelEntityFactory {
     public static Entity createBigBlue(int x, int y) {
         Entity e = new Entity();
         e.addComponent(new Position(x, y));
-        e.addComponent(new Sprite("BigBlue.png"));
+        e.addComponent(new Sprite("BigBlue.png", Color.WHITE, 1));
         e.addComponent(new Noun(Noun.Type.BIGBLUE));
         e.addComponent(new KeyboardControlled());
         RuleComponent rc = new RuleComponent();
@@ -41,7 +42,7 @@ public class LevelEntityFactory {
     public static Entity createWall(int x, int y) {
         Entity e = new Entity();
         e.addComponent(new Position(x, y));
-        e.addComponent(createAnimated("wall"));
+        e.addComponent(createAnimated("wall", Color.GRAY, 0));
         e.addComponent(new Noun(Noun.Type.WALL));
 
         RuleComponent rc = new RuleComponent();
@@ -54,9 +55,28 @@ public class LevelEntityFactory {
     public static Entity createText(int x, int y, String value, Text.TextType type) {
         Entity e = new Entity();
         e.addComponent(new Position(x, y));
-        e.addComponent(createAnimated("word-" + value.toLowerCase()));
+        Color color = switch (value.toLowerCase()) {
+            case "bigblue" -> Color.PINK;
+            case "flag" -> Color.YELLOW;
+            case "is" -> Color.WHITE;
+            case "kill" -> Color.ORANGE;
+            case "lava" -> Color.RED;
+            case "push" -> Color.LIGHT_GRAY;
+            case "rock" -> Color.BROWN;
+            case "sink" -> Color.TRANSLUCENT_BLUE;
+            case "stop" -> Color.TRANSLUCENT_RED;
+            case "wall" -> Color.GRAY;
+            case "water" -> Color.AQUA;
+            case "win" -> Color.GOLD;
+            case "you" -> Color.MAGENTA;
+            default -> throw new IllegalStateException("Unexpected value: " + value.toLowerCase());
+        };
+        e.addComponent(createAnimated("word-" + value.toLowerCase(), color, 0.5f));
         e.addComponent(new Text(type, value));
-        e.addComponent(new Sprite("word-" + value.toLowerCase() + ".png"));
+//        e.addComponent(new Sprite("word-" + value.toLowerCase() + ".png"));
+        RuleComponent rc = new RuleComponent();
+        rc.addProperty(Property.PUSH);
+        e.addComponent(rc);
 //        System.out.printf("value: %s, type: %s\n", value, type.name());
         return e;
     }
@@ -64,7 +84,8 @@ public class LevelEntityFactory {
     public static Entity createFloor(int x, int y) {
         Entity e = new Entity();
         e.addComponent(new Position(x, y));
-        e.addComponent(new Sprite("floor.png"));
+        e.addComponent(createAnimated("floor", Color.DARK_GRAY, -1f));
+//        e.addComponent(new Sprite("floor.png"));
         return e;
     }
 
@@ -84,7 +105,8 @@ public class LevelEntityFactory {
     public static Entity createFlag(int x, int y) {
         Entity e = new Entity();
         e.addComponent(new Position(x, y));
-        e.addComponent(new Sprite("flag.png"));
+//        e.addComponent(new Sprite("flag.png"));
+        e.addComponent(createAnimated("flag", Color.YELLOW, 1));
         e.addComponent(new Noun(Noun.Type.FLAG));
         return e;
     }
@@ -92,7 +114,8 @@ public class LevelEntityFactory {
     public static Entity createLava(int x, int y) {
         Entity e = new Entity();
         e.addComponent(new Position(x, y));
-        e.addComponent(new Sprite("lava.png"));
+//        e.addComponent(new Sprite("lava.png"));
+        e.addComponent(createAnimated("lava", Color.RED, 0));
         e.addComponent(new Noun(Noun.Type.LAVA));
         return e;
     }
@@ -100,7 +123,8 @@ public class LevelEntityFactory {
     public static Entity createWater(int x, int y) {
         Entity e = new Entity();
         e.addComponent(new Position(x, y));
-        e.addComponent(new Sprite("water.png"));
+//        e.addComponent(new Sprite("water.png"));
+        e.addComponent(createAnimated("water", Color.AQUA, 0));
         e.addComponent(new Noun(Noun.Type.WATER));
         return e;
     }
@@ -108,7 +132,8 @@ public class LevelEntityFactory {
     public static Entity createHedge(int x, int y) {
         Entity e = new Entity();
         e.addComponent(new Position(x, y));
-        e.addComponent(new Sprite("hedge.png"));
+//        e.addComponent(new Sprite("hedge.png", Color.GREEN, 0f));
+        e.addComponent(createAnimated("hedge", Color.GREEN, 0));
         e.addComponent(new Noun(Noun.Type.HEDGE));
         return e;
     }
@@ -116,17 +141,25 @@ public class LevelEntityFactory {
     public static Entity createGrass(int x, int y) {
         Entity e = new Entity();
         e.addComponent(new Position(x, y));
-        e.addComponent(new Sprite("grass.png"));
+//        e.addComponent(new Sprite("grass.png"));
+        e.addComponent(createAnimated("grass", Color.LIME, 1f));
         return e;
     }
 
-    private static AnimatedSpriteComponent createAnimated(String name) {
+    public static Entity createFlowers(int x, int y){
+        Entity e = new Entity();
+        e.addComponent(new Position(x, y));
+        e.addComponent(createAnimated("flowers", Color.PURPLE, 1f));
+        return e;
+    }
+
+    private static AnimatedSpriteComponent createAnimated(String name, Color color, float z) {
         if (spriteManager == null) {
             throw new IllegalStateException("SpriteManager not set in LevelEntityFactory");
         }
 
         // Example: 6 frames, 0.1 seconds each (adjust as needed)
-        AnimatedSprite sprite = spriteManager.createAnimatedSprite(name, 6, 0.1f);
-        return new AnimatedSpriteComponent(sprite, name+".png");
+        AnimatedSprite sprite = spriteManager.createAnimatedSprite(name, 3, 0.2f);
+        return new AnimatedSpriteComponent(sprite, name+".png", color, z);
     }
 }

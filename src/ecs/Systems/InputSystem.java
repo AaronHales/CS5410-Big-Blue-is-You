@@ -3,6 +3,7 @@ package ecs.Systems;
 import ecs.Components.KeyboardControlled;
 import ecs.Entities.Entity;
 import ecs.World;
+import edu.usu.graphics.Graphics2D;
 import input.ControlConfig;
 import utils.Direction;
 
@@ -15,10 +16,9 @@ public class InputSystem extends System {
     private final long window;
     private final World world;
     private final UndoSystem undoSystem;
-
+    private boolean undoWasDown = false;
     private float moveCooldown = 0f;
-    private static final float MOVE_DELAY = 0.2f; // adjust to feel right
-
+    private static final float MOVE_DELAY = 0.2f;
 
     public InputSystem(long window, World world, UndoSystem undoSystem) {
         this.window = window;
@@ -30,39 +30,55 @@ public class InputSystem extends System {
     public void update(World world, double deltaTime) {
         if (moveCooldown > 0) {
             moveCooldown -= deltaTime;
-            return; // Skip this frame
         }
 
-        Direction direction = getDirectionFromInput();
-
-        if (direction != null) {
-            List<Entity> controlled = world.getEntitiesWithComponent(KeyboardControlled.class);
-            for (Entity e : controlled) {
-                KeyboardControlled kc = world.getComponent(e, KeyboardControlled.class);
-                kc.setDirection(direction);
-                moveCooldown = MOVE_DELAY;
+        // Rising-edge undo: only trigger once per key press
+        boolean undoIsDown = glfwGetKey(window, ControlConfig.getBinding("UNDO")) == GLFW_PRESS;
+        if (undoIsDown && !undoWasDown) {
+            if (undoSystem.canUndo()) {
+                undoSystem.pop(world);
+                // Clear any pending move directions to prevent immediate re-push
+                List<Entity> controlled = world.getEntitiesWithComponent(KeyboardControlled.class);
+                for (Entity e : controlled) {
+                    e.getComponent(KeyboardControlled.class).setDirection(null);
+                }
+                moveCooldown = 0f;
             }
         }
+        undoWasDown = undoIsDown;
 
-        // Handle Undo Key
-        if (glfwGetKey(window, ControlConfig.getBinding("UNDO")) == GLFW_PRESS) {
-            undoSystem.pop(world);
+        if (moveCooldown > 0) {
+            return;
         }
-    }
 
-    private Direction getDirectionFromInput() {
+        // Determine movement direction
+        Direction dir = null;
         if (glfwGetKey(window, ControlConfig.getBinding("UP")) == GLFW_PRESS) {
-            return Direction.UP;
+            dir = Direction.UP;
+        } else if (glfwGetKey(window, ControlConfig.getBinding("DOWN")) == GLFW_PRESS) {
+            dir = Direction.DOWN;
+        } else if (glfwGetKey(window, ControlConfig.getBinding("LEFT")) == GLFW_PRESS) {
+            dir = Direction.LEFT;
+        } else if (glfwGetKey(window, ControlConfig.getBinding("RIGHT")) == GLFW_PRESS) {
+            dir = Direction.RIGHT;
         }
-        if (glfwGetKey(window, ControlConfig.getBinding("DOWN")) == GLFW_PRESS) {
-            return Direction.DOWN;
+
+        // Apply movement direction with cooldown
+        if (dir != null) {
+            List<Entity> controlled = world.getEntitiesWithComponent(KeyboardControlled.class);
+            for (Entity e : controlled) {
+                e.getComponent(KeyboardControlled.class).setDirection(dir);
+            }
+            moveCooldown = MOVE_DELAY;
         }
-        if (glfwGetKey(window, ControlConfig.getBinding("LEFT")) == GLFW_PRESS) {
-            return Direction.LEFT;
-        }
-        if (glfwGetKey(window, ControlConfig.getBinding("RIGHT")) == GLFW_PRESS) {
-            return Direction.RIGHT;
-        }
-        return null;
     }
+
+    @Override
+    public void render(double elapsedTime, Graphics2D graphics) {
+
+    }
+
+    /** No-op: input system does not subscribe to entity events */
+    @Override
+    public void onEntityUpdated(Entity entity) {}
 }

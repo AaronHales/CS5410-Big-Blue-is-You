@@ -3,6 +3,7 @@ package ecs.Systems;
 import ecs.Components.*;
 import ecs.Entities.Entity;
 import ecs.World;
+import edu.usu.graphics.Graphics2D;
 import levels.LevelEntityFactory;
 import utils.Direction;
 
@@ -21,9 +22,32 @@ public class RuleSystem extends System {
             world.removeComponent(e, RuleVisualTag.class);
         }
 
+        // Clear existing rule properties
         for (Entity e : world.getEntitiesWithComponent(RuleComponent.class)) {
             RuleComponent rc = world.getComponent(e, RuleComponent.class);
             rc.clear();
+        }
+
+        // Default: make all text entities pushable
+        for (Entity e : world.getEntitiesWithComponent(Text.class)) {
+            RuleComponent rc = world.getComponent(e, RuleComponent.class);
+            if (rc == null) {
+                rc = new RuleComponent();
+                world.addComponent(e, rc);
+            }
+            rc.addProperty(Property.PUSH);
+        }
+        for (Entity e : world.getEntitiesWithComponent(Noun.class)) {
+            RuleComponent rc = world.getComponent(e, RuleComponent.class);
+            Sprite sprite = world.getComponent(e, Sprite.class);
+            AnimatedSpriteComponent aniSprite = world.getComponent(e, AnimatedSpriteComponent.class);
+            if ((sprite != null && sprite.spriteName.toLowerCase().contains("hedge")) || (aniSprite != null && aniSprite.name.toLowerCase().contains("hedge"))) {
+                if (rc == null) {
+                    rc = new RuleComponent();
+                    world.addComponent(e, rc);
+                }
+                rc.addProperty(Property.STOP);
+            }
         }
 
         List<Entity> textEntities = world.getEntitiesWithComponent(Text.class);
@@ -32,10 +56,34 @@ public class RuleSystem extends System {
             Position pos = world.getComponent(e, Position.class);
 
             if (text.getTextType() == Text.TextType.VERB && text.getValue().equalsIgnoreCase("IS")) {
-                tryRule(pos.getX(), pos.getY(), -1, 0, 1, 0); // horizontal
-                tryRule(pos.getX(), pos.getY(), 0, -1, 0, 1); // vertical
+                // Horizontal rule detection (noun IS property)
+                tryRule(pos.getX(), pos.getY(), -1, 0, 1, 0);
+                // Vertical rule detection (noun above and property below)
+                tryRule(pos.getX(), pos.getY(), 0, -1, 0, 1);
+                // Reversed horizontal (property IS noun)
+                tryRule(pos.getX(), pos.getY(), 1, 0, -1, 0);
+                // Reversed vertical (property above and noun below)
+                tryRule(pos.getX(), pos.getY(), 0, 1, 0, -1);
             }
         }
+
+        // --- Update control mapping based on YOU rules ---
+        // Remove KeyboardControlled from all entities
+        for (Entity e : new ArrayList<>(world.getEntitiesWithComponent(KeyboardControlled.class))) {
+            world.removeComponent(e, KeyboardControlled.class);
+        }
+        // Add KeyboardControlled to all entities with YOU property
+        for (Entity e : world.getEntitiesWithComponent(RuleComponent.class)) {
+            RuleComponent rc = world.getComponent(e, RuleComponent.class);
+            if (rc.hasProperty(Property.YOU) && !e.hasComponent(KeyboardControlled.class)) {
+                world.addComponent(e, new KeyboardControlled());
+            }
+        }
+    }
+
+    @Override
+    public void render(double elapsedTime, Graphics2D graphics) {
+
     }
 
     private final Map<Noun.Type, Noun.Type> transformations = new HashMap<>();
@@ -59,6 +107,7 @@ public class RuleSystem extends System {
                 if (noun.getValue().equalsIgnoreCase(nounText.getValue())) {
                     RuleComponent rc = world.getOrCreateComponent(e, RuleComponent.class);
                     rc.addProperty(Property.fromString(propText.getValue()));
+//                    java.lang.System.out.printf("%s adding %s\n", e, propText.getValue());
                 }
             }
 

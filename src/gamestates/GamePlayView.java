@@ -10,11 +10,14 @@ import ecs.*;
 import input.KeyboardInput;
 import input.Controls;
 import Render.SpriteManager;
+import org.joml.Vector2f;
 import org.lwjgl.glfw.GLFW;
-import particles.ParticleSystem;
+import particles.*;
 
 import java.io.File;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class GamePlayView extends GameStateView {
     private KeyboardInput inputKeyboard;
@@ -28,6 +31,8 @@ public class GamePlayView extends GameStateView {
     private double winDelayTimer = -1;
     private boolean levelWon = false;
 
+    private ParticleSystem particleSystem;
+
     private Position winPosition = null;
     private boolean fireworksTriggered = false;
 
@@ -37,6 +42,12 @@ public class GamePlayView extends GameStateView {
     private RenderObjectsSystem renderObjectsSystem;
     private RenderTextSystem renderTextSystem;
 
+    private RuleVisualEffectSystem ruleVisualEffectSystem;
+    private RenderParticleSystem renderParticleSystem;
+
+    private final Set<Entity> prevEntities = new HashSet<>();
+    private final Set<Entity> prevYou = new HashSet<>();
+    private final Set<Entity> prevWin = new HashSet<>();
 
     @Override
     public void initialize(Graphics2D graphics) {
@@ -47,33 +58,39 @@ public class GamePlayView extends GameStateView {
         world = new World();
 
         undoSystem = new UndoSystem();
-        world.addSystem(undoSystem);
-
-
 
         spriteManager = new SpriteManager("./resources/sprites");
         spriteManager.loadAll();
 
         LevelEntityFactory.setSpriteManager(spriteManager);
 
-        List<Entity> levelEntities = levels.LevelLoader.loadLevels("resources/levels/level-1.bbiy", world);
-        for (Entity entity : levelEntities) {
-            java.lang.System.out.printf("entity: %s, spriteName: %s\n", entity, entity.hasComponent(Sprite.class) ? entity.getComponent(Sprite.class).spriteName : entity.getComponent(AnimatedSpriteComponent.class).name);
-            world.addEntity(entity);
-        }
+        world.addSystem(undoSystem);
 
         renderFloorSystem = new RenderFloorSystem(world, spriteManager);
         renderObjectsSystem = new RenderObjectsSystem(world, spriteManager);
         renderTextSystem = new RenderTextSystem(world, spriteManager);
 
+        this.particleSystem = new ParticleSystem();
 
+        renderParticleSystem = new RenderParticleSystem(particleSystem);
+        world.addSystem(renderParticleSystem);
+        this.ruleVisualEffectSystem = new RuleVisualEffectSystem(world, particleSystem);
+        world.addSystem(ruleVisualEffectSystem);
+
+        world.addSystem(new InputSystem(graphics.getWindow(), world, undoSystem));
+        world.addSystem(new MovementSystem(world, this));
         world.addSystem(new RuleSystem(world));
         world.addSystem(new ConditionSystem(world));
-        world.addSystem(new MovementSystem(world, this));
-        world.addSystem(new RenderAnimatedSpriteSystem(world));
-        world.addSystem(new InputSystem(graphics.getWindow(), world, undoSystem));
+        world.addSystem(new AnimatedSpriteSystem(world));
 
+        // particle stuff
+        world.addSystem(new RuleVisualEffectSystem(world, particleSystem));
 
+        List<Entity> levelEntities = levels.LevelLoader.loadLevels("resources/levels/level-1.bbiy", world);
+        for (Entity entity : levelEntities) {
+            java.lang.System.out.printf("entity: %s %s, spriteName: %s\n", entity, entity.getComponent(Position.class).toString(), entity.hasComponent(Sprite.class) ? entity.getComponent(Sprite.class).spriteName : entity.getComponent(AnimatedSpriteComponent.class).name);
+            world.addEntity(entity);
+        }
 
         font = new Font("resources/fonts/Roboto-Regular.ttf", 48, false);
 
@@ -90,6 +107,17 @@ public class GamePlayView extends GameStateView {
 //        inputKeyboard.registerCommand(GLFW.GLFW_KEY_Z, true, (elapsedTime) -> {
 //            undoLastMove();
 //        });
+
+        // -- Immediately process rules on level load --
+        // so that any RuleComponents are set before the first frame
+        world.updateAll(0);
+        // Capture initial state for particle triggers
+        prevEntities.addAll(world.getEntities());
+        for (Entity e : world.getEntitiesWithComponent(RuleComponent.class)) {
+            RuleComponent rc = world.getComponent(e, RuleComponent.class);
+            if (rc.hasProperty(Property.YOU)) prevYou.add(e);
+            if (rc.hasProperty(Property.WIN)) prevWin.add(e);
+        }
     }
 
     @Override
@@ -109,7 +137,7 @@ public class GamePlayView extends GameStateView {
             if (!fireworksTriggered && winPosition != null) {
                 ParticleSystem particles = world.getSystem(ParticleSystem.class);
                 if (particles != null) {
-                    particles.objectIsWin(winPosition);
+                    particles.sparkleBorder(new Vector2f(winPosition.getX(), winPosition.getY()));
                 }
                 fireworksTriggered = true;
             }
@@ -122,8 +150,18 @@ public class GamePlayView extends GameStateView {
         }
 
         if (world != null) {
+            // Capture current entity state before logic
+            Set<Entity> currentEntities = new HashSet<>(world.getEntities());
+            Set<Entity> currentYou = new HashSet<>();
+            Set<Entity> currentWin = new HashSet<>();
+            for (Entity e : world.getEntitiesWithComponent(RuleComponent.class)) {
+                RuleComponent rc = world.getComponent(e, RuleComponent.class);
+                if (rc.hasProperty(Property.YOU)) currentYou.add(e);
+                if (rc.hasProperty(Property.WIN)) currentWin.add(e);
+            }
             world.updateAll(elapsedTime);
-            java.lang.System.err.println(world.getEntities().get(73).getAllComponents());
+            particleSystem.update(elapsedTime);
+//            java.lang.System.err.println(world.getEntities().get(103).getComponent(RuleComponent.class).getProperties());
 
             for (ecs.Systems.System system : world.getSystems()) {
                 if (system instanceof ConditionSystem cs && cs.isLevelWon() && !levelWon) {
@@ -147,35 +185,82 @@ public class GamePlayView extends GameStateView {
                     }
                 }
             }
+
+            // 1) Object destruction effect: entities removed this frame
+            for (Entity old : prevEntities) {
+                if (!currentEntities.contains(old)) {
+                    Position pos = old.getComponent(Position.class);
+                    if (pos != null) particleSystem.objectDestroyed(new Vector2f(pos.getX(), pos.getY()));
+                }
+            }
+
+            // 2) YOU rule change effect: new YOU entities sparkle at border
+            for (Entity e : currentYou) {
+                if (!prevYou.contains(e)) {
+                    Position pos = e.getComponent(Position.class);
+                    if (pos != null) particleSystem.sparkleBorder(new Vector2f(pos.getX(), pos.getY()));
+                }
+            }
+
+            // 3) WIN rule change effect: new WIN entities sparkle at border
+            for (Entity e : currentWin) {
+                if (!prevWin.contains(e)) {
+                    Position pos = e.getComponent(Position.class);
+                    if (pos != null) particleSystem.sparkleBorder(new Vector2f(pos.getX(), pos.getY()));
+                }
+            }
+
+            // 4) Winning fireworks: on first win detection
+            if (levelWon && !prevWin.isEmpty() && prevWin.size() != currentWin.size()) {
+                // Fireworks at win positions
+                for (Entity e : currentWin) {
+                    Position pos = e.getComponent(Position.class);
+                    if (pos != null) particleSystem.fireworks(new Vector2f(pos.getX(), pos.getY()));
+                }
+            }
+
+            // Save state for next frame
+            prevEntities.clear(); prevEntities.addAll(currentEntities);
+            prevYou.clear(); prevYou.addAll(currentYou);
+            prevWin.clear(); prevWin.addAll(currentWin);
         }
     }
 
     @Override
     public void render(double elapsedTime) {
-        renderFloorSystem.update(world, elapsedTime, graphics);
-        renderObjectsSystem.update(world, elapsedTime, graphics);
-        renderTextSystem.update(world, elapsedTime, graphics);
+        if (world != null) {
+            renderFloorSystem.update(world, elapsedTime, graphics);
+            renderTextSystem.update(world, elapsedTime, graphics);
+            renderObjectsSystem.update(world, elapsedTime, graphics);
+
+            world.renderAll(elapsedTime, graphics);
+
+//            renderParticleSystem.update(world, elapsedTime, graphics);
+
+            AnimatedSpriteSystem animSystem = world.getSystem(AnimatedSpriteSystem.class);
+            if (animSystem != null) {
+                animSystem.update(world, elapsedTime, graphics);
+            }
+        }
 
         if (levelWon) {
+            String winMSG = "Level Complete!";
+            float width = font.measureTextWidth(winMSG, 0.08f);
+            float height = font.measureTextHeight(winMSG, width);
             graphics.drawTextByHeight(
                     font,
-                    "🎉 Level Complete!",
-                    -0.5f,
-                    0.75f,
+                    winMSG,
+                    -width/2f,
+                    -height/2f,
                     0.08f,
                     Color.YELLOW
             );
         }
 
+
         graphics.drawTextByHeight(font, "[ESC] - Back", -0.95f, -0.75f, 0.05f, Color.YELLOW);
         graphics.drawTextByHeight(font, "[R] - Restart", -0.95f, -0.69f, 0.05f, Color.CORNFLOWER_BLUE);
         graphics.drawTextByHeight(font, "[Z] - Undo", -0.95f, -0.63f, 0.05f, Color.BLUE);
-
-        RenderAnimatedSpriteSystem animSystem = world.getSystem(RenderAnimatedSpriteSystem.class);
-        if (animSystem != null) {
-            animSystem.update(world, elapsedTime, graphics);
-        }
-
     }
 
     public void triggerWin(int x, int y) {
@@ -203,6 +288,35 @@ public class GamePlayView extends GameStateView {
         winPosition = null;
         winDelayTimer = -1;
         undoSystem.clear();
+
+        undoSystem = new UndoSystem();
+
+        spriteManager = new SpriteManager("./resources/sprites");
+        spriteManager.loadAll();
+
+        LevelEntityFactory.setSpriteManager(spriteManager);
+
+        world.addSystem(undoSystem);
+
+        renderFloorSystem = new RenderFloorSystem(world, spriteManager);
+        renderObjectsSystem = new RenderObjectsSystem(world, spriteManager);
+        renderTextSystem = new RenderTextSystem(world, spriteManager);
+
+        this.particleSystem = new ParticleSystem();
+
+        renderParticleSystem = new RenderParticleSystem(particleSystem);
+        world.addSystem(renderParticleSystem);
+        this.ruleVisualEffectSystem = new RuleVisualEffectSystem(world, particleSystem);
+        world.addSystem(ruleVisualEffectSystem);
+
+        world.addSystem(new InputSystem(graphics.getWindow(), world, undoSystem));
+        world.addSystem(new MovementSystem(world, this));
+        world.addSystem(new RuleSystem(world));
+        world.addSystem(new ConditionSystem(world));
+        world.addSystem(new AnimatedSpriteSystem(world));
+
+        // particle stuff
+        world.addSystem(new RuleVisualEffectSystem(world, particleSystem));
     }
 
     private void restartLevel() {
@@ -218,6 +332,35 @@ public class GamePlayView extends GameStateView {
         winPosition = null;
         winDelayTimer = -1;
         undoSystem.clear();
+
+        undoSystem = new UndoSystem();
+
+        spriteManager = new SpriteManager("./resources/sprites");
+        spriteManager.loadAll();
+
+        LevelEntityFactory.setSpriteManager(spriteManager);
+
+        world.addSystem(undoSystem);
+
+        renderFloorSystem = new RenderFloorSystem(world, spriteManager);
+        renderObjectsSystem = new RenderObjectsSystem(world, spriteManager);
+        renderTextSystem = new RenderTextSystem(world, spriteManager);
+
+        this.particleSystem = new ParticleSystem();
+
+        renderParticleSystem = new RenderParticleSystem(particleSystem);
+        world.addSystem(renderParticleSystem);
+        this.ruleVisualEffectSystem = new RuleVisualEffectSystem(world, particleSystem);
+        world.addSystem(ruleVisualEffectSystem);
+
+        world.addSystem(new InputSystem(graphics.getWindow(), world, undoSystem));
+        world.addSystem(new MovementSystem(world, this));
+        world.addSystem(new RuleSystem(world));
+        world.addSystem(new ConditionSystem(world));
+        world.addSystem(new AnimatedSpriteSystem(world));
+
+        // particle stuff
+        world.addSystem(new RuleVisualEffectSystem(world, particleSystem));
     }
 
     private void undoLastMove() {

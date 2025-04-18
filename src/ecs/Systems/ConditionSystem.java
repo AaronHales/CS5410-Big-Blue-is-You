@@ -3,6 +3,7 @@ package ecs.Systems;
 import ecs.Components.*;
 import ecs.Entities.Entity;
 import ecs.World;
+import edu.usu.graphics.Graphics2D;
 
 import java.util.*;
 
@@ -108,5 +109,10 @@ public class ConditionSystem extends System {
     @Override
     public void update(World world, double deltaTime) {
         this.update(deltaTime);
+    }
+
+    @Override
+    public void render(double elapsedTime, Graphics2D graphics) {
+
     }
 }

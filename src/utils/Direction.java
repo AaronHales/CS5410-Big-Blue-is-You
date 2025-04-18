@@ -13,15 +13,4 @@ public enum Direction {
         this.dx = dx;
         this.dy = dy;
     }
-
-    public static Direction fromKey(int keyCode) {
-        // Optional: integrate with your Controls enum or GLFW keys
-        switch (keyCode) {
-            case 87: return UP;     // W
-            case 83: return DOWN;   // S
-            case 65: return LEFT;   // A
-            case 68: return RIGHT;  // D
-            default: return null;
-        }
-    }
 }

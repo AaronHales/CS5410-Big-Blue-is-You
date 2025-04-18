@@ -3,12 +3,15 @@ package ecs.Systems;
 import ecs.Components.*;
 import ecs.Entities.Entity;
 import ecs.World;
+import edu.usu.graphics.Graphics2D;
+import org.joml.Vector2f;
 import utils.Direction;
 import particles.*;
 import gamestates.GamePlayView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class MovementSystem extends System {
     private final World world;
@@ -35,14 +38,15 @@ public class MovementSystem extends System {
                     int newX = pos.getX() + moveDir.dx;
                     int newY = pos.getY() + moveDir.dy;
 
-                    boolean isBlocked1 = !isBlocked(newX, newY);
-                    boolean tryPush1 = tryPush(newX, newY, moveDir.dx, moveDir.dy);
-                    java.lang.System.out.printf("!isBlocked: %b, tryPush: %b", isBlocked1, tryPush1);
-                    if (tryPush1 && isBlocked1) {
+                    boolean isBlocked1 = !isBlocked(newX, newY, moveDir.dx, moveDir.dy);
+//                    boolean tryPush1 = tryPush(newX, newY, moveDir.dx, moveDir.dy);
+                    java.lang.System.out.printf("!isBlocked: %b, ", isBlocked1);
+                    java.lang.System.out.println();
+                    if (isBlocked1) {
                         if (world.getSystem(UndoSystem.class) != null) {
                             world.getSystem(UndoSystem.class).push(world);
                         }
-                        pos.set(newX, newY);
+//                        pos.set(newX, newY);
                         world.updateEntityPositionIndex(entity, newX, newY);
                         checkSink(entity, newX, newY);
                         checkDefeat(entity, newX, newY);
@@ -68,8 +72,8 @@ public class MovementSystem extends System {
             int newX = pos.getX() + moveDir.dx;
             int newY = pos.getY() + moveDir.dy;
 
-            if (tryPush(newX, newY, moveDir.dx, moveDir.dy) && !isBlocked(newX, newY)) {
-                pos.set(newX, newY);
+            if (!isBlocked(newX, newY, moveDir.dx, moveDir.dy)) {
+//                pos.set(newX, newY);
                 world.updateEntityPositionIndex(entity, newX, newY);
                 checkSink(entity, newX, newY);
                 checkDefeat(entity, newX, newY);
@@ -78,49 +82,67 @@ public class MovementSystem extends System {
         }
     }
 
-    private boolean isBlocked(int x, int y) {
-        List<Entity> entitiesAt = world.getEntitiesAtPosition(x, y);
-        boolean hasFloor = false;
-
-        for (Entity e : entitiesAt) {
-            RuleComponent rule = world.getComponent(e, RuleComponent.class);
-            if (rule != null && rule.hasProperty(Property.STOP)) return true;
-
-            if (e.hasComponent(Sprite.class)) {
-                String name = e.getComponent(Sprite.class).spriteName.toLowerCase();
-                if (name.contains("floor")) hasFloor = true;
+    /**
+     * Returns true if movement to (newX,newY) is blocked by STOP or failed PUSH.
+     */
+    private boolean isBlocked(int newX, int newY, int dx, int dy) {
+        List<Entity> targets = world.getEntitiesAtPosition(newX, newY);
+        for (Entity target : new ArrayList<>(targets)) {
+            // STOP entities block movement
+            if (target.getComponent(RuleComponent.class) == null) continue;
+            if (target.getComponent(RuleComponent.class).hasProperty(Property.STOP)) {
+                return true;
             }
-
-            if (e.hasComponent(AnimatedSpriteComponent.class)) {
-                String name = e.getComponent(AnimatedSpriteComponent.class).name.toLowerCase();
-                if (name.contains("floor")) hasFloor = true;
+            // Only push entities explicitly tagged PUSH
+            RuleComponent rc = world.getComponent(target, RuleComponent.class);
+            if (rc != null && rc.hasProperty(Property.PUSH)) {
+                if (!tryPushChain(newX, newY, dx, dy)) {
+                    return true;
+                }
             }
+            // Non-STOP and non-PUSH entities are passable
         }
-
-        return !hasFloor;
+        return false;
     }
 
-    private boolean tryPush(int x, int y, int dx, int dy) {
-        List<Entity> entities = world.getEntitiesAtPosition(x, y);
-        if (entities.isEmpty()) return true;
-
-        for (Entity e : new ArrayList<>(entities)) {
-            RuleComponent rule = world.getComponent(e, RuleComponent.class);
-            if (rule == null) continue;
-            if (!rule.hasProperty(Property.PUSH)) return false;
-
-            Position pos = world.getComponent(e, Position.class);
-            int nextX = pos.getX() + dx;
-            int nextY = pos.getY() + dy;
-
-            if (!tryPush(nextX, nextY, dx, dy)) return false;
-
-            pos.set(nextX, nextY);
-            world.updateEntityPositionIndex(e, nextX, nextY);
+    /**
+     * Gathers and pushes a contiguous line of PUSH-tagged entities.
+     * Returns false if any push in the chain is blocked.
+     */
+    private boolean tryPushChain(int startX, int startY, int dx, int dy) {
+        List<Entity> chain = new ArrayList<>();
+        int cx = startX, cy = startY;
+        // Build chain of pushable entities
+        while (true) {
+            Entity pushable = null;
+            for (Entity e : world.getEntitiesAtPosition(cx, cy)) {
+                RuleComponent rc = world.getComponent(e, RuleComponent.class);
+                if (rc != null && rc.hasProperty(Property.PUSH)) {
+                    pushable = e;
+                    break;
+                }
+            }
+            if (pushable == null) break;
+            chain.add(pushable);
+            cx += dx;
+            cy += dy;
         }
-
+        // Final space must not be blocked by STOP
+        for (Entity e : world.getEntitiesAtPosition(cx, cy)) {
+            if (e.getComponent(RuleComponent.class) == null) continue;
+            if (e.getComponent(RuleComponent.class).hasProperty(Property.STOP)) {
+                return false;
+            }
+        }
+        // Perform push from farthest to nearest
+        for (int i = chain.size() - 1; i >= 0; i--) {
+            Entity e = chain.get(i);
+            Position p = world.getComponent(e, Position.class);
+            world.updateEntityPositionIndex(e, p.getX() + dx, p.getY() + dy);
+        }
         return true;
     }
+
 
     private void checkSink(Entity mover, int x, int y) {
         for (Entity e : new ArrayList<>(world.getEntitiesAtPosition(x, y))) {
@@ -163,7 +185,7 @@ public class MovementSystem extends System {
                     winTriggered = true;
                     ParticleSystem particles = world.getSystem(ParticleSystem.class);
                     if (particles != null) {
-                        particles.objectIsWin(new Position(x, y));
+                        particles.fireworks(new Vector2f(x, y));
                     }
                     view.triggerWin(x, y);
                 }
@@ -175,5 +197,10 @@ public class MovementSystem extends System {
     @Override
     public void update(World world, double deltaTime) {
         this.update(deltaTime);
+    }
+
+    @Override
+    public void render(double elapsedTime, Graphics2D graphics) {
+
     }
 }

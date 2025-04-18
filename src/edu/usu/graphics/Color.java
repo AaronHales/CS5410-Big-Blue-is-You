@@ -68,6 +68,8 @@ public class Color {
     public static final Color AQUA = new Color(0.0f, 0.8f, 0.8f);
     public static final Color TEAL = new Color(0.0f, 0.5f, 0.5f);
 
+    public static final Color BROWN = new Color(150 / 255f, 75 / 255f, 0 / 255f);
+
     // === Translucent Variants ===
     public static final Color TRANSLUCENT_WHITE = new Color(1f, 1f, 1f, 0.4f);
     public static final Color TRANSLUCENT_YELLOW = new Color(1f, 1f, 0f, 0.3f);

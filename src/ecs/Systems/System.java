@@ -3,6 +3,8 @@ package ecs.Systems;
 import ecs.Components.Component;
 import ecs.Entities.*;
 import ecs.World;
+import edu.usu.graphics.Graphics2D;
+
 import java.util.*;
 
 public abstract class System {
@@ -16,6 +18,8 @@ public abstract class System {
 
 
     public abstract void update(World world, double deltaTime);
+
+    public abstract void render(double elapsedTime, Graphics2D graphics);
 
     public void addEntity(Entity entity) {
         entities.add(entity);

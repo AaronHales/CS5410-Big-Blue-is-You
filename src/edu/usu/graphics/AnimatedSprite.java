@@ -55,9 +55,9 @@ public class AnimatedSprite {
         }
     }
 
-    public void draw(Graphics2D graphics, Color color) {
+    public void draw(Graphics2D graphics, Color color, float z) {
         // Where to draw
-        Rectangle destination = new Rectangle(center.x - size.x / 2, center.y - size.y / 2, size.x, size.y);
+        Rectangle destination = new Rectangle(center.x - size.x / 2, center.y - size.y / 2, size.x, size.y, z);
         // Which sub-rectangle of the spritesheet to draw
         Rectangle subImage = new Rectangle(
                 subImageWidth * subImageIndex,

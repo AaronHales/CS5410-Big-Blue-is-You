@@ -1,164 +1,114 @@
 package particles;
 
-import ecs.Components.Position;
 import ecs.World;
-import edu.usu.graphics.Color;
-import edu.usu.graphics.Rectangle;
-import edu.usu.graphics.RenderQueue;
-import edu.usu.graphics.RenderQueue.RenderSolidRectangleOperation;
-import org.joml.Matrix4f;
+import edu.usu.graphics.Graphics2D;
+import org.joml.Vector2f;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Random;
 
-import java.util.*;
+/**
+ * Core particle engine: pooling, update, and specialized spawn effects.
+ */
+public class ParticleSystem extends ecs.Systems.System{
+    static class Particle {
+        float x, y;
+        float vx, vy;
+        float r, g, b, a;
+        float life;
+    }
 
-public class ParticleSystem extends ecs.Systems.System {
     private final List<Particle> particles = new ArrayList<>();
-    private static final float TILE_SIZE = 1.0f / 12.0f;  // assuming 12x12 tile grid
-    private static final float PARTICLE_SIZE = TILE_SIZE / 2.5f;
+    private final Random rand = new Random();
 
-    private final Map<PositionKey, Float> recentRuleEffects = new HashMap<>();
-    private static final float RULE_EFFECT_COOLDOWN = 0.5f;
-
-
-    public void update(double deltaTime) {
-        particles.removeIf(p -> !p.update(deltaTime));
-
-        // Update cooldown timers for debounced rule tiles
-        recentRuleEffects.entrySet().removeIf(entry -> entry.getValue() <= 0);
-        for (var entry : recentRuleEffects.entrySet()) {
-            recentRuleEffects.put(entry.getKey(), entry.getValue() - (float) deltaTime);
-        }
-    }
-
-
-    public void submitRenderOps(RenderQueue queue) {
-        for (Particle p : particles) {
-            queue.add(new Rectangle(
-                            p.x, p.y,
-                            PARTICLE_SIZE, PARTICLE_SIZE,
-                            0.05f),
-                    new Color(p.r, p.g, p.b, p.a),
-                    new Matrix4f()
-            );
-        }
-    }
-
-    public void playerDeath(Position position) {
-        spawnParticles(position, 8, 1.5f, "red");
-    }
-
-    public void objectDeath(Position position) {
-        spawnParticles(position, 5, 1.2f, "gray");
-    }
-
-    public void objectIsWin(Position position) {
-        spawnParticles(position, 6, 2.0f, "yellow");
-    }
-
-    public void objectBecomesYou(Position position) {
-        spawnParticles(position, 6, 2.0f, "white");
-    }
-
-    public void ruleTextEffect(Position position) {
-        PositionKey key = new PositionKey(position);
-        if (recentRuleEffects.containsKey(key)) return;
-
-        recentRuleEffects.put(key, RULE_EFFECT_COOLDOWN);
-
-        int count = 10;
-        float life = 1.2f;
-        String color = "lime";
-
-        float centerX = -1 + (position.getX() + 0.5f) * TILE_SIZE * 2;
-        float centerY = -1 + (position.getY() + 0.5f) * TILE_SIZE * 2;
-        float radius = TILE_SIZE * 0.6f;
-
-        for (int i = 0; i < count; i++) {
-            double angle = 2 * Math.PI * i / count;
-            float px = centerX + (float) Math.cos(angle) * radius;
-            float py = centerY + (float) Math.sin(angle) * radius;
-            particles.add(new Particle(px, py, life, getRGBA(color)));
-        }
-    }
-
-
-    private void spawnParticles(Position position, int count, float life, String color) {
-        float centerX = -1 + (position.getX() + 0.5f) * TILE_SIZE * 2;
-        float centerY = -1 + (position.getY() + 0.5f) * TILE_SIZE * 2;
-
-        float[] rgb = getRGBA(color);
-
-        for (int i = 0; i < count; i++) {
-            particles.add(new Particle(centerX, centerY, life, rgb));
+    // Core update: advance and cull
+    public void update(double dt) {
+        Iterator<Particle> it = particles.iterator();
+        while (it.hasNext()) {
+            Particle p = it.next();
+            p.x += p.vx * dt;
+            p.y += p.vy * dt;
+            p.life -= dt;
+            p.a = Math.max(0, p.life / 1.0f);
+            if (p.life <= 0) it.remove();
         }
     }
 
     @Override
     public void update(World world, double deltaTime) {
-        this.update(deltaTime);  // call local update
+        update(deltaTime);
     }
 
-    private float[] getRGBA(String color) {
-        return switch (color.toLowerCase()) {
-            case "red" -> new float[]{Color.RED.r, Color.RED.g, Color.RED.b, Color.RED.a};
-            case "gray" -> new float[]{Color.GRAY.r, Color.GRAY.g, Color.GRAY.b, Color.GRAY.a};
-            case "yellow" -> new float[]{Color.YELLOW.r, Color.YELLOW.g, Color.YELLOW.b, Color.YELLOW.a};
-            case "white" -> new float[]{Color.WHITE.r, Color.WHITE.g, Color.WHITE.b, Color.WHITE.a};
-            case "lime" -> new float[]{Color.LIME.r, Color.LIME.g, Color.LIME.b, Color.LIME.a};
-            case "blue" -> new float[]{Color.BLUE.r, Color.BLUE.g, Color.BLUE.b, Color.BLUE.a};
-            default -> new float[]{Color.MAGENTA.r, Color.MAGENTA.g, Color.MAGENTA.b, Color.MAGENTA.a};  // fallback magenta
-        };
+    @Override
+    public void render(double elapsedTime, Graphics2D graphics) {
+
     }
 
-    public static class Particle {
-        float x, y;
-        float dx, dy;
-        float lifetime;
-        float age = 0;
-        float r, g, b, a;
+    // Accessor for rendering
+    public List<Particle> getLiveParticles() {
+        return particles;
+    }
 
-        public Particle(float x, float y, float lifetime, float[] color) {
-            this.x = x;
-            this.y = y;
-            this.lifetime = lifetime;
-            this.r = color[0];
-            this.g = color[1];
-            this.b = color[2];
-            this.a = color[3];  // Translucent by default
-
-            double angle = Math.random() * 2 * Math.PI;
-            double speed = Math.random() * 0.03 + 0.01;
-            this.dx = (float)(Math.cos(angle) * speed);
-            this.dy = (float)(Math.sin(angle) * speed);
-        }
-
-        public boolean update(double deltaTime) {
-            age += deltaTime;
-            if (age > lifetime) return false;
-
-            x += dx;
-            y += dy;
-            return true;
+    // Spawn at tile center for destruction: small burst
+    public void objectDestroyed(Vector2f tile) {
+        float cx = tile.x;
+        float cy = tile.y;
+        for (int i = 0; i < 20; i++) {
+            spawn(cx, cy, (rand.nextFloat() - 0.5f) * 3f, (rand.nextFloat() - 0.5f) * 3f,
+                    0.6f, 0.6f, 0.6f, 1f, 0.5f + rand.nextFloat() * 0.5f);
         }
     }
 
-    private static class PositionKey {
-        int x, y;
-
-        PositionKey(Position p) {
-            this.x = p.getX();
-            this.y = p.getY();
-        }
-
-        @Override public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof PositionKey)) return false;
-            PositionKey other = (PositionKey) o;
-            return x == other.x && y == other.y;
-        }
-
-        @Override public int hashCode() {
-            return Objects.hash(x, y);
+    // Fireworks from tile center: colorful radial burst
+    public void fireworks(Vector2f tile) {
+        float cx = tile.x;
+        float cy = tile.y;
+        for (int i = 0; i < 50; i++) {
+            float angle = (float)(rand.nextFloat() * Math.PI * 2);
+            float speed = 2f + rand.nextFloat() * 2f;
+            float r = rand.nextFloat();
+            float g = rand.nextFloat();
+            float b = rand.nextFloat();
+            spawn(cx, cy, (float)Math.cos(angle) * speed, (float)Math.sin(angle) * speed,
+                    r, g, b, 1f, 1f + rand.nextFloat());
         }
     }
 
+    // Sparkle along tile border: points on edges
+    public void sparkleBorder(Vector2f tile) {
+        float x0 = tile.x - 0.5f;
+        float y0 = tile.y - 0.5f;
+        float size = 1.0f;
+        for (int i = 0; i < 30; i++) {
+            float t = rand.nextFloat();
+            float x, y;
+            switch (rand.nextInt(4)) {
+                case 0: x = x0 + t * size; y = y0; break;
+                case 1: x = x0 + size; y = y0 + t * size; break;
+                case 2: x = x0 + t * size; y = y0 + size; break;
+                default: x = x0; y = y0 + t * size; break;
+            }
+            spawn(x, y, (rand.nextFloat() - 0.5f) * 1f, (rand.nextFloat() - 0.5f) * 1f,
+                    1f, 1f, 0.3f, 1f, 0.8f + rand.nextFloat() * 0.4f);
+        }
+    }
+
+    // Generic particle spawn
+    private void spawn(float x, float y,
+                       float vx, float vy,
+                       float r, float g, float b, float a,
+                       float life) {
+        Particle p = new Particle();
+        p.x = x;
+        p.y = y;
+        p.vx = vx;
+        p.vy = vy;
+        p.r = r;
+        p.g = g;
+        p.b = b;
+        p.a = a;
+        p.life = life;
+        particles.add(p);
+    }
 }

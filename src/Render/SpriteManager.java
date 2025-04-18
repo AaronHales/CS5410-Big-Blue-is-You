@@ -44,6 +44,7 @@ public class SpriteManager {
 
 
     public Texture getTexture(String name) {
+//        System.out.printf("getting Texture: %s, is %s", name, textures.get(name));
         return textures.get(name);
     }
 
@@ -66,12 +67,12 @@ public class SpriteManager {
         return new AnimatedSprite(sheet, frameTimes, size, center);
     }
 
-    public void draw(Graphics2D graphics, String name, float x, float y, Color color) {
+    public void draw(Graphics2D graphics, String name, float x, float y, Color color, float z) {
         // First check for animated sprite
         AnimatedSprite animated = sprites.get(name);
         if (animated != null) {
             animated.setCenter(x, y);
-            animated.draw(graphics, color);
+            animated.draw(graphics, color, z);
             return;
         }
 
@@ -79,7 +80,7 @@ public class SpriteManager {
         Texture texture = textures.get(name);
         if (texture != null) {
             float tileSize = 1.0f / 16.0f;
-            graphics.draw(texture, new Rectangle(x - tileSize / 2, y - tileSize / 2, tileSize, tileSize), color);
+            graphics.draw(texture, new Rectangle(x - tileSize / 2, y - tileSize / 2, tileSize, tileSize, z), color);
             return;
         }
 

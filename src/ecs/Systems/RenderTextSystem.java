@@ -46,17 +46,23 @@ public class RenderTextSystem extends System {
             if (world.hasComponent(e, Sprite.class)) {
                 Sprite sprite = world.getComponent(e, Sprite.class);
                 if (!sprite.spriteName.toLowerCase().startsWith("word-")) continue;
-                spriteManager.draw(graphics, sprite.spriteName, drawX, drawY, tint);
-            } else if (world.hasComponent(e, AnimatedSpriteComponent.class)) {
+                spriteManager.draw(graphics, sprite.spriteName, drawX, drawY, sprite.color, sprite.z);
+            }
+            else if (world.hasComponent(e, AnimatedSpriteComponent.class)) {
                 AnimatedSpriteComponent anim = world.getComponent(e, AnimatedSpriteComponent.class);
                 anim.sprite.setCenter(drawX, drawY);
-                anim.sprite.draw(graphics, tint);
+                anim.sprite.draw(graphics, anim.color, anim.z);
             }
         }
     }
 
     @Override
     public void update(World world, double deltaTime) {
+
+    }
+
+    @Override
+    public void render(double elapsedTime, Graphics2D graphics) {
 
     }
 }

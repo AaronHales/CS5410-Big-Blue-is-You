@@ -3,10 +3,11 @@ package ecs.Systems;
 import ecs.Entities.Entity;
 import ecs.World;
 import ecs.Components.Component;
+import edu.usu.graphics.Graphics2D;
 
 import java.util.*;
 
-public class UndoSystem extends System{
+public class UndoSystem extends System {
     private final Deque<List<Entity>> undoStack = new ArrayDeque<>();
 
     public UndoSystem() {
@@ -33,11 +34,23 @@ public class UndoSystem extends System{
     public void pop(World world) {
         if (undoStack.isEmpty()) return;
 
-        List<Entity> previousState = undoStack.pop();
-        world.clear();  // Remove all current entities
+        // 1) Save current systems
+        List<System> savedSystems = new ArrayList<>(world.getSystems());
 
-        for (Entity entity : previousState) {
-            world.addEntity(entity);  // Rebuild world state
+        // 2) Restore entity snapshot
+        List<Entity> previousState = undoStack.pop();
+
+        // 3) Clear world (entities, components, position index, AND systems list)
+        world.clear();
+
+        // 4) Re-register systems
+        for (System sys : savedSystems) {
+            world.addSystem(sys);
+        }
+
+        // 5) Re-add all entities
+        for (Entity e : previousState) {
+            world.addEntity(e);
         }
     }
 
@@ -51,6 +64,11 @@ public class UndoSystem extends System{
 
     @Override
     public void update(World world, double deltaTime) {
+
+    }
+
+    @Override
+    public void render(double elapsedTime, Graphics2D graphics) {
 
     }
 }

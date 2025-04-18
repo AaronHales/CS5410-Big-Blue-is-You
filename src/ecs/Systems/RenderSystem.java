@@ -33,11 +33,11 @@ public class RenderSystem extends System {
 
             if (e.hasComponent(Sprite.class)) {
                 Sprite sprite = world.getComponent(e, Sprite.class);
-                spriteManager.draw(graphics, sprite.spriteName, drawX, drawY, Color.WHITE);
+                spriteManager.draw(graphics, sprite.spriteName, drawX, drawY, sprite.color, sprite.z);
             } else if (e.hasComponent(AnimatedSpriteComponent.class)) {
                 AnimatedSpriteComponent anim = world.getComponent(e, AnimatedSpriteComponent.class);
                 anim.sprite.setCenter(drawX, drawY);
-                anim.sprite.draw(graphics, Color.WHITE);
+                anim.sprite.draw(graphics, anim.color, anim.z);
             }
         }
     }
@@ -45,5 +45,10 @@ public class RenderSystem extends System {
     @Override
     public void update(World world, double deltaTime) {
         // not used — this is a render-only system
+    }
+
+    @Override
+    public void render(double elapsedTime, Graphics2D graphics) {
+
     }
 }

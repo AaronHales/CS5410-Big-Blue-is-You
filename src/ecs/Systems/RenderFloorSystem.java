@@ -35,13 +35,14 @@ public class RenderFloorSystem extends System {
                     Sprite sprite = e.getComponent(Sprite.class);
                     if (!sprite.spriteName.toLowerCase().contains("floor")) continue;
 
-                    spriteManager.draw(graphics, sprite.spriteName, drawX, drawY, Color.WHITE);
-                } else if (e.hasComponent(AnimatedSpriteComponent.class)) {
+                    spriteManager.draw(graphics, sprite.spriteName, drawX, drawY, sprite.color, sprite.z);
+                }
+                else if (e.hasComponent(AnimatedSpriteComponent.class)) {
                     AnimatedSpriteComponent anim = e.getComponent(AnimatedSpriteComponent.class);
                     if (!anim.name.toLowerCase().contains("floor")) continue;
 
                     anim.sprite.setCenter(drawX, drawY);
-                    anim.sprite.draw(graphics, Color.WHITE);
+                    anim.sprite.draw(graphics, anim.color, anim.z);
                 }
             }
         }
@@ -49,6 +50,11 @@ public class RenderFloorSystem extends System {
 
     @Override
     public void update(World world, double deltaTime) {
+
+    }
+
+    @Override
+    public void render(double elapsedTime, Graphics2D graphics) {
 
     }
 }

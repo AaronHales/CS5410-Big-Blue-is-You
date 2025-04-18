@@ -3,6 +3,7 @@ package ecs;
 import ecs.Components.Component;
 import ecs.Components.Position;
 import ecs.Entities.Entity;
+import edu.usu.graphics.Graphics2D;
 import org.joml.Vector2i;
 
 import java.util.*;
@@ -172,6 +173,12 @@ public class World {
     public void updateAll(double deltaTime) {
         for (ecs.Systems.System system : new ArrayList<>(systems)) {
             system.update(this, deltaTime);
+        }
+    }
+
+    public void renderAll(double elapsedTime, Graphics2D graphics) {
+        for (ecs.Systems.System system : new ArrayList<>(systems)) {
+            system.render(elapsedTime, graphics);
         }
     }
 

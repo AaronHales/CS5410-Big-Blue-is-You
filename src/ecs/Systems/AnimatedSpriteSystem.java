@@ -5,15 +5,14 @@ import ecs.Components.Position;
 import ecs.Entities.Entity;
 import ecs.World;
 import edu.usu.graphics.AnimatedSprite;
-import edu.usu.graphics.Color;
 import edu.usu.graphics.Graphics2D;
 
 import java.util.List;
 
-public class RenderAnimatedSpriteSystem extends System {
+public class AnimatedSpriteSystem extends System {
     private final World world;
 
-    public RenderAnimatedSpriteSystem(World world) {
+    public AnimatedSpriteSystem(World world) {
         this.world = world;
     }
 

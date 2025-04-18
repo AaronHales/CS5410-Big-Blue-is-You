@@ -6,17 +6,31 @@
   <component name="ChangeListManager">
     <list default="true" id="8858ee06-ea5c-4baa-8898-f17b08ca1729" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ecs/Components/RuleVisualTag.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Components/RuleVisualTag.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ecs/Entities/Entity.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Entities/Entity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Render/SpriteManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Render/SpriteManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ecs/Components/AnimatedSpriteComponent.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Components/AnimatedSpriteComponent.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ecs/Components/Sprite.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Components/Sprite.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ecs/Systems/AnimatedSpriteSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/AnimatedSpriteSystem.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ecs/Systems/ConditionSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/ConditionSystem.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ecs/Systems/InputSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/InputSystem.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ecs/Systems/MovementSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/MovementSystem.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ecs/Systems/RenderFloorSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/RenderFloorSystem.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ecs/Systems/RenderObjectsSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/RenderObjectsSystem.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ecs/Systems/RenderSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/RenderSystem.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ecs/Systems/RenderTextSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/RenderTextSystem.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ecs/Systems/RuleSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/RuleSystem.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ecs/Systems/RuleTextEffectSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/RuleTextEffectSystem.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ecs/Systems/RuleVisualEffectSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/RuleVisualEffectSystem.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ecs/Systems/System.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/System.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ecs/Systems/UndoSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/UndoSystem.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ecs/World.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/World.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/edu/usu/graphics/AnimatedSprite.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/edu/usu/graphics/AnimatedSprite.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/edu/usu/graphics/Color.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/edu/usu/graphics/Color.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/gamestates/GamePlayView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gamestates/GamePlayView.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/levels/LevelEntityFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/levels/LevelEntityFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/particles/MyRandom.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/particles/MyRandom.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/particles/ParticleSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/particles/ParticleSystem.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/particles/RenderParticleSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/particles/RenderParticleSystem.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/utils/Direction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/Direction.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -57,7 +71,7 @@
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/aaron/Desktop/USU/Spring 2025/Game Dev/CS5410 - Big Blue is You&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/aaron/Desktop/USU/Spring 2025/Game Dev/CS5410 - Big Blue is You/resources/images&quot;,
     &quot;project.structure.last.edited&quot;: &quot;Libraries&quot;,
     &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
     &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
@@ -66,12 +80,16 @@
 }</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\aaron\Desktop\USU\Spring 2025\Game Dev\CS5410 - Big Blue is You\resources\images" />
       <recent name="C:\Users\aaron\Desktop\USU\Spring 2025\Game Dev\CS5410 - Big Blue is You" />
       <recent name="C:\Users\aaron\Desktop\USU\Spring 2025\Game Dev\CS5410 - Big Blue is You\resources" />
       <recent name="C:\Users\aaron\Desktop\USU\Spring 2025\Game Dev\CS5410 - Big Blue is You\src" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\aaron\Desktop\USU\Spring 2025\Game Dev\CS5410 - Big Blue is You\resources\sprites" />
+    </key>
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="particles" />
     </key>
   </component>
   <component name="RunManager" selected="Application.Driver - Windows/Linux">
