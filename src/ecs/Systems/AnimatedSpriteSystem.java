@@ -31,12 +31,19 @@ public class RenderAnimatedSpriteSystem extends System {
             sprite.update(deltaTime);
 
             // Draw it
-            sprite.draw(graphics, Color.WHITE);
+//            float z = world.getComponent(e, AnimatedSpriteComponent.class).z;
+
+//            sprite.draw(graphics, Color.WHITE, z);
         }
     }
 
     @Override
     public void update(World world, double deltaTime) {
+
+    }
+
+    @Override
+    public void render(double elapsedTime, Graphics2D graphics) {
 
     }
 }
