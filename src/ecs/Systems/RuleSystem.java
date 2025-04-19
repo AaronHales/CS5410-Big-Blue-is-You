@@ -3,8 +3,11 @@ package ecs.Systems;
 import ecs.Components.*;
 import ecs.Entities.Entity;
 import ecs.World;
+import edu.usu.graphics.Color;
 import edu.usu.graphics.Graphics2D;
 import levels.LevelEntityFactory;
+import org.joml.Vector2f;
+import particles.ParticleSystem;
 import utils.Direction;
 
 import java.util.*;
@@ -18,18 +21,18 @@ public class RuleSystem extends System {
 
     @Override
     public void update(World world, double deltaTime) {
-        for (Entity e : world.getEntitiesWithComponent(RuleVisualTag.class)) {
+        for (Entity e : new ArrayList<>(world.getEntitiesWithComponent(RuleVisualTag.class))) {
             world.removeComponent(e, RuleVisualTag.class);
         }
 
         // Clear existing rule properties
-        for (Entity e : world.getEntitiesWithComponent(RuleComponent.class)) {
+        for (Entity e : new ArrayList<>(world.getEntitiesWithComponent(RuleComponent.class))) {
             RuleComponent rc = world.getComponent(e, RuleComponent.class);
             rc.clear();
         }
 
         // Default: make all text entities pushable
-        for (Entity e : world.getEntitiesWithComponent(Text.class)) {
+        for (Entity e : new ArrayList<>(world.getEntitiesWithComponent(Text.class))) {
             RuleComponent rc = world.getComponent(e, RuleComponent.class);
             if (rc == null) {
                 rc = new RuleComponent();
@@ -37,7 +40,7 @@ public class RuleSystem extends System {
             }
             rc.addProperty(Property.PUSH);
         }
-        for (Entity e : world.getEntitiesWithComponent(Noun.class)) {
+        for (Entity e : new ArrayList<>(world.getEntitiesWithComponent(Noun.class))) {
             RuleComponent rc = world.getComponent(e, RuleComponent.class);
             Sprite sprite = world.getComponent(e, Sprite.class);
             AnimatedSpriteComponent aniSprite = world.getComponent(e, AnimatedSpriteComponent.class);
@@ -51,7 +54,7 @@ public class RuleSystem extends System {
         }
 
         List<Entity> textEntities = world.getEntitiesWithComponent(Text.class);
-        for (Entity e : textEntities) {
+        for (Entity e : new ArrayList<>(textEntities)) {
             Text text = world.getComponent(e, Text.class);
             Position pos = world.getComponent(e, Position.class);
 
@@ -73,7 +76,7 @@ public class RuleSystem extends System {
             world.removeComponent(e, KeyboardControlled.class);
         }
         // Add KeyboardControlled to all entities with YOU property
-        for (Entity e : world.getEntitiesWithComponent(RuleComponent.class)) {
+        for (Entity e : new ArrayList<>(world.getEntitiesWithComponent(RuleComponent.class))) {
             RuleComponent rc = world.getComponent(e, RuleComponent.class);
             if (rc.hasProperty(Property.YOU) && !e.hasComponent(KeyboardControlled.class)) {
                 world.addComponent(e, new KeyboardControlled());
@@ -101,17 +104,17 @@ public class RuleSystem extends System {
         if (nounText.getTextType() == Text.TextType.NOUN &&
                 propText.getTextType() == Text.TextType.PROPERTY) {
 
-            for (Entity e : world.getEntities()) {
+            for (Entity e : new ArrayList<>(world.getEntities())) {
                 if (!world.hasComponent(e, Noun.class)) continue;
                 Noun noun = world.getComponent(e, Noun.class);
                 if (noun.getValue().equalsIgnoreCase(nounText.getValue())) {
                     RuleComponent rc = world.getOrCreateComponent(e, RuleComponent.class);
                     rc.addProperty(Property.fromString(propText.getValue()));
 //                    java.lang.System.out.printf("%s adding %s\n", e, propText.getValue());
+                    tagRuleWords(x, y, dx1, dy1, dx2, dy2, RuleVisualTag.Type.VALID);
                 }
             }
 
-            tagRuleWords(x, y, dx1, dy1, dx2, dy2, RuleVisualTag.Type.VALID);
             return;
         }
 
@@ -122,7 +125,7 @@ public class RuleSystem extends System {
 
             Property prop = Property.fromString(propText.getValue());
 
-            for (Entity e : world.getEntitiesWithComponent(Text.class)) {
+            for (Entity e : new ArrayList<>(world.getEntitiesWithComponent(Text.class))) {
                 RuleComponent rc = world.getOrCreateComponent(e, RuleComponent.class);
                 rc.addProperty(prop);
             }
@@ -137,7 +140,7 @@ public class RuleSystem extends System {
                 propText.getTextType() == Text.TextType.PROPERTY &&
                 propText.getValue().equalsIgnoreCase("MOVE")) {
 
-            for (Entity e : world.getEntities()) {
+            for (Entity e : new ArrayList<>(world.getEntities())) {
                 if (!world.hasComponent(e, Noun.class)) continue;
                 Noun noun = world.getComponent(e, Noun.class);
                 if (!noun.getValue().equalsIgnoreCase(nounText.getValue())) continue;
@@ -163,7 +166,7 @@ public class RuleSystem extends System {
 
             String controlled = nounText.getValue().toUpperCase();
 
-            for (Entity e : world.getEntities()) {
+            for (Entity e : new ArrayList<>(world.getEntities())) {
                 if (!world.hasComponent(e, Noun.class)) continue;
                 Noun noun = world.getComponent(e, Noun.class);
                 RuleComponent rc = world.getOrCreateComponent(e, RuleComponent.class);
@@ -173,6 +176,9 @@ public class RuleSystem extends System {
                     rc.addProperty(Property.YOU);
                     if (!world.hasComponent(e, KeyboardControlled.class)) {
                         world.addComponent(e, new KeyboardControlled());
+                        ParticleSystem particleSystem = new ParticleSystem();
+                        world.addSystem(particleSystem);
+//                        particleSystem.sparkleBorder(new Vector2f(e.getComponent(Position.class).getX(), e.getComponent(Position.class).getY()), Color.PINK);
                     }
                 } else {
                     rc.removeProperty(Property.YOU);
@@ -202,7 +208,7 @@ public class RuleSystem extends System {
 
             transformations.put(from, to);
 
-            for (Entity e : world.getEntities()) {
+            for (Entity e : new ArrayList<>(world.getEntities())) {
                 if (!world.hasComponent(e, Noun.class)) continue;
                 Noun noun = world.getComponent(e, Noun.class);
                 if (noun.getValue().equalsIgnoreCase(from.name())) {

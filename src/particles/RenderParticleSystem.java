@@ -16,10 +16,11 @@ public class RenderParticleSystem extends ecs.Systems.System {
     private final ParticleSystem particleSystem;
 
     // size of particle in world units (should match how you interpret x/y in ParticleSystem)
-    private static final float PARTICLE_SIZE = 1.0f / 12.0f / 2.5f;
+    private static final float PARTICLE_SIZE = 1.0f / 12.0f / 12f;
 
     public RenderParticleSystem(ParticleSystem particleSystem) {
         this.particleSystem = particleSystem;
+        particleSystem.setParticleSize(PARTICLE_SIZE);
     }
 
     @Override
@@ -27,14 +28,20 @@ public class RenderParticleSystem extends ecs.Systems.System {
         // No logic here—particles are updated in ParticleSystem.update(...)
     }
 
+    public static float getParticleSize() {
+        return PARTICLE_SIZE;
+    }
+
     @Override
     public void render(double elapsedTime, Graphics2D graphics) {
+
         for (ParticleSystem.Particle p : particleSystem.getLiveParticles()) {
             Rectangle rect = new Rectangle(
                     p.x, p.y,
                     PARTICLE_SIZE, PARTICLE_SIZE,
-                    0.0f
+                    p.z
             );
+//            System.out.printf("Draw particle at %.2f,%.2f with alpha %.2f%n", p.x, p.y, p.a);
             Color c = new Color(p.r, p.g, p.b, p.a);
             graphics.draw(rect, c);
         }

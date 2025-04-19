@@ -3,7 +3,6 @@ package ecs.Systems;
 import ecs.Components.*;
 import ecs.Entities.Entity;
 import ecs.World;
-import edu.usu.graphics.Color;
 import edu.usu.graphics.Graphics2D;
 import Render.SpriteManager;
 
@@ -19,7 +18,7 @@ public class RenderSystem extends System {
     }
 
     public void update(World world, Graphics2D graphics, double deltaTime) {
-        float tileSize = 1.0f / 16.0f;
+        float tileSize = 1f / Math.min(world.getLevelHeight(), world.getLevelWidth());
         float offsetX = -tileSize * world.getLevelWidth() / 2.0f;
         float offsetY = -tileSize * world.getLevelHeight() / 2.0f;
 
@@ -33,9 +32,10 @@ public class RenderSystem extends System {
 
             if (e.hasComponent(Sprite.class)) {
                 Sprite sprite = world.getComponent(e, Sprite.class);
-                spriteManager.draw(graphics, sprite.spriteName, drawX, drawY, sprite.color, sprite.z);
+                spriteManager.draw(graphics, sprite.spriteName, drawX, drawY, sprite.color, sprite.z, tileSize);
             } else if (e.hasComponent(AnimatedSpriteComponent.class)) {
                 AnimatedSpriteComponent anim = world.getComponent(e, AnimatedSpriteComponent.class);
+                anim.sprite.setSize(tileSize, tileSize);
                 anim.sprite.setCenter(drawX, drawY);
                 anim.sprite.draw(graphics, anim.color, anim.z);
             }

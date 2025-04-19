@@ -71,4 +71,8 @@ public class AnimatedSprite {
         this.center.set(x, y);
     }
 
+    public void setSize(float x, float y) {
+        this.size.set(x, y);
+    }
+
 }

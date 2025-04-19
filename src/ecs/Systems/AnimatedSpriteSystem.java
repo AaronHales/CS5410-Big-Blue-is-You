@@ -28,11 +28,6 @@ public class AnimatedSpriteSystem extends System {
 
             // Update animation time
             sprite.update(deltaTime);
-
-            // Draw it
-//            float z = world.getComponent(e, AnimatedSpriteComponent.class).z;
-
-//            sprite.draw(graphics, Color.WHITE, z);
         }
     }
 

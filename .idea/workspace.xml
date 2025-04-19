@@ -7,30 +7,19 @@
     <list default="true" id="8858ee06-ea5c-4baa-8898-f17b08ca1729" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Render/SpriteManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Render/SpriteManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ecs/Components/AnimatedSpriteComponent.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Components/AnimatedSpriteComponent.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ecs/Components/Sprite.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Components/Sprite.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ecs/Systems/AnimatedSpriteSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/AnimatedSpriteSystem.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ecs/Systems/ConditionSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/ConditionSystem.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ecs/Systems/InputSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/InputSystem.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ecs/Systems/MovementSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/MovementSystem.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ecs/Systems/RenderFloorSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/RenderFloorSystem.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ecs/Systems/RenderObjectsSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/RenderObjectsSystem.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ecs/Systems/RenderSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/RenderSystem.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ecs/Systems/RenderTextSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/RenderTextSystem.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ecs/Systems/RuleSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/RuleSystem.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ecs/Systems/RuleTextEffectSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/RuleTextEffectSystem.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ecs/Systems/RuleVisualEffectSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/RuleVisualEffectSystem.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ecs/Systems/System.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/System.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ecs/Systems/UndoSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/UndoSystem.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ecs/World.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/World.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/edu/usu/graphics/AnimatedSprite.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/edu/usu/graphics/AnimatedSprite.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/edu/usu/graphics/Color.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/edu/usu/graphics/Color.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/gamestates/GamePlayView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gamestates/GamePlayView.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/levels/LevelEntityFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/levels/LevelEntityFactory.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/particles/MyRandom.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/particles/MyRandom.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/particles/ParticleSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/particles/ParticleSystem.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/particles/RenderParticleSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/particles/RenderParticleSystem.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/utils/Direction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/Direction.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -146,5 +135,8 @@
         <watch expression="allChars.length()" language="JAVA" />
       </configuration>
     </watches-manager>
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/CS5410___Big_Blue_is_You$Driver___Windows_Linux.ic" NAME="Driver - Windows/Linux Coverage Results" MODIFIED="1745018578788" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true" />
   </component>
 </project>

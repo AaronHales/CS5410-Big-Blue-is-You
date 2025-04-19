@@ -3,8 +3,11 @@ package ecs;
 import ecs.Components.Component;
 import ecs.Components.Position;
 import ecs.Entities.Entity;
+import edu.usu.graphics.Color;
 import edu.usu.graphics.Graphics2D;
+import org.joml.Vector2f;
 import org.joml.Vector2i;
+import particles.ParticleSystem;
 
 import java.util.*;
 
@@ -39,13 +42,20 @@ public class World {
         entityComponents.remove(entity);
 
         Position pos = entity.getComponent(Position.class);
+
         if (pos != null) {
+            int x = pos.getX();
+            int y = pos.getY();
             Vector2i key = new Vector2i(pos.getX(), pos.getY());
             List<Entity> atPos = positionIndex.get(key);
             if (atPos != null) {
                 atPos.remove(entity);
                 if (atPos.isEmpty()) {
                     positionIndex.remove(key);
+                    if (this.getSystem(ParticleSystem.class) != null) {
+
+                        this.getSystem(ParticleSystem.class).objectDestroyed(new Vector2f(x, y), Color.TRANSLUCENT_GRAY);
+                    }
                 }
             }
         }

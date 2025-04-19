@@ -10,6 +10,7 @@ import particles.*;
 import gamestates.GamePlayView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,6 +18,8 @@ public class MovementSystem extends System {
     private final World world;
     private boolean winTriggered = false;
     private final GamePlayView view;
+
+    private HashMap<Entity, Position> pushed = new HashMap<>();
 
     public MovementSystem(World world, GamePlayView view) {
         this.world = world;
@@ -26,6 +29,7 @@ public class MovementSystem extends System {
 //    @Override
     public void update(double deltaTime) {
         if (winTriggered) return;
+
         // --- Player-controlled movement ---
         for (Entity entity : new ArrayList<>(world.getEntities())) {
             if (world.hasComponent(entity, KeyboardControlled.class) && world.hasComponent(entity, Position.class)) {
@@ -38,17 +42,15 @@ public class MovementSystem extends System {
                     int newX = pos.getX() + moveDir.dx;
                     int newY = pos.getY() + moveDir.dy;
 
-                    boolean isBlocked1 = !isBlocked(newX, newY, moveDir.dx, moveDir.dy);
+                    boolean isBlocked = !isBlocked(newX, newY, moveDir.dx, moveDir.dy);
 //                    boolean tryPush1 = tryPush(newX, newY, moveDir.dx, moveDir.dy);
-                    java.lang.System.out.printf("!isBlocked: %b, ", isBlocked1);
+                    java.lang.System.out.printf("!isBlocked: %b, ", isBlocked);
                     java.lang.System.out.println();
-                    if (isBlocked1) {
-                        if (world.getSystem(UndoSystem.class) != null) {
-                            world.getSystem(UndoSystem.class).push(world);
-                        }
+                    if (isBlocked) {
 //                        pos.set(newX, newY);
-                        world.updateEntityPositionIndex(entity, newX, newY);
-                        checkSink(entity, newX, newY);
+                        pushed.put(entity, new Position(newX, newY));
+//                        world.updateEntityPositionIndex(entity, newX, newY);
+//                        checkSink(entity, newX, newY);
                         checkDefeat(entity, newX, newY);
                         checkWin(entity, newX, newY);
                     }
@@ -74,11 +76,23 @@ public class MovementSystem extends System {
 
             if (!isBlocked(newX, newY, moveDir.dx, moveDir.dy)) {
 //                pos.set(newX, newY);
-                world.updateEntityPositionIndex(entity, newX, newY);
-                checkSink(entity, newX, newY);
+//                world.updateEntityPositionIndex(entity, newX, newY);
+                pushed.put(entity, new Position(newX, newY));
+//                checkSink(entity, newX, newY);
                 checkDefeat(entity, newX, newY);
                 checkWin(entity, newX, newY);
             }
+        }
+
+        if (!pushed.isEmpty()) {
+            if (world.getSystem(UndoSystem.class) != null) {
+                world.getSystem(UndoSystem.class).push(world);
+            }
+            for (Entity e : pushed.keySet()) {
+                checkSink(e, pushed.get(e).getX(), pushed.get(e).getY());
+                world.updateEntityPositionIndex(e, pushed.get(e).getX(), pushed.get(e).getY());
+            }
+            pushed.clear();
         }
     }
 
@@ -138,7 +152,8 @@ public class MovementSystem extends System {
         for (int i = chain.size() - 1; i >= 0; i--) {
             Entity e = chain.get(i);
             Position p = world.getComponent(e, Position.class);
-            world.updateEntityPositionIndex(e, p.getX() + dx, p.getY() + dy);
+            pushed.put(e, new Position(p.getX() + dx, p.getY() + dy));
+//            world.updateEntityPositionIndex(e, p.getX() + dx, p.getY() + dy);
         }
         return true;
     }
@@ -147,14 +162,17 @@ public class MovementSystem extends System {
     private void checkSink(Entity mover, int x, int y) {
         for (Entity e : new ArrayList<>(world.getEntitiesAtPosition(x, y))) {
             if (e == mover) continue;
-            if (world.hasComponent(e, Text.class)) continue;
+            if (world.hasComponent(mover, Text.class)) continue;
 
             RuleComponent rule = world.getComponent(e, RuleComponent.class);
             if (rule != null && rule.hasProperty(Property.SINK)) {
                 world.removeEntity(e);
                 if (!world.hasComponent(mover, Text.class)) {
                     world.removeEntity(mover);
+                    continue;
                 }
+                world.removeEntity(mover);
+                world.removeEntity(e);
                 break;
             }
         }
@@ -166,7 +184,7 @@ public class MovementSystem extends System {
         for (Entity e : new ArrayList<>(world.getEntitiesAtPosition(x, y))) {
             if (e == mover) continue;
             RuleComponent rule = world.getComponent(e, RuleComponent.class);
-            if (rule != null && rule.hasProperty(Property.DEFEAT)) {
+            if (rule != null && rule.hasProperty(Property.DEFEAT) && e.getComponent(RuleComponent.class).hasProperty(Property.YOU)) {
                 world.removeEntity(mover);
                 break;
             }
@@ -183,10 +201,6 @@ public class MovementSystem extends System {
                 java.lang.System.out.println("🎉 YOU WIN!");
                 if (!winTriggered) {
                     winTriggered = true;
-                    ParticleSystem particles = world.getSystem(ParticleSystem.class);
-                    if (particles != null) {
-                        particles.fireworks(new Vector2f(x, y));
-                    }
                     view.triggerWin(x, y);
                 }
                 break;

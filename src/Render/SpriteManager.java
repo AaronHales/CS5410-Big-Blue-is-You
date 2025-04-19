@@ -61,16 +61,18 @@ public class SpriteManager {
         }
 
         // Estimate size (normalized device coords), adjust if needed
-        Vector2f size = new Vector2f(1.0f / 16.0f, 1.0f / 16.0f);
+        Vector2f size = new Vector2f(1.0f, 1.0f);
         Vector2f center = new Vector2f(0.0f, 0.0f); // Will be set via setCenter()
 
         return new AnimatedSprite(sheet, frameTimes, size, center);
     }
 
-    public void draw(Graphics2D graphics, String name, float x, float y, Color color, float z) {
+    public void draw(Graphics2D graphics, String name, float x, float y, Color color, float z, float tileSize) {
         // First check for animated sprite
         AnimatedSprite animated = sprites.get(name);
         if (animated != null) {
+            System.out.println(name);
+            if (name.toLowerCase().startsWith("flag")) System.out.printf("center: (%f, %f)\n", x, y);
             animated.setCenter(x, y);
             animated.draw(graphics, color, z);
             return;
@@ -79,7 +81,6 @@ public class SpriteManager {
         // Then check for static texture
         Texture texture = textures.get(name);
         if (texture != null) {
-            float tileSize = 1.0f / 16.0f;
             graphics.draw(texture, new Rectangle(x - tileSize / 2, y - tileSize / 2, tileSize, tileSize, z), color);
             return;
         }

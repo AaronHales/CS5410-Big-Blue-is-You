@@ -29,7 +29,7 @@ public class LevelEntityFactory {
     public static Entity createBigBlue(int x, int y) {
         Entity e = new Entity();
         e.addComponent(new Position(x, y));
-        e.addComponent(new Sprite("BigBlue.png", Color.WHITE, 1));
+        e.addComponent(new Sprite("BigBlue.png", Color.WHITE, 0.8f));
         e.addComponent(new Noun(Noun.Type.BIGBLUE));
         e.addComponent(new KeyboardControlled());
         RuleComponent rc = new RuleComponent();
@@ -59,8 +59,8 @@ public class LevelEntityFactory {
             case "bigblue" -> Color.PINK;
             case "flag" -> Color.YELLOW;
             case "is" -> Color.WHITE;
-            case "kill" -> Color.ORANGE;
-            case "lava" -> Color.RED;
+            case "kill", "defeat" -> Color.RED;
+            case "lava" -> Color.ORANGE;
             case "push" -> Color.LIGHT_GRAY;
             case "rock" -> Color.BROWN;
             case "sink" -> Color.TRANSLUCENT_BLUE;
@@ -71,7 +71,9 @@ public class LevelEntityFactory {
             case "you" -> Color.MAGENTA;
             default -> throw new IllegalStateException("Unexpected value: " + value.toLowerCase());
         };
+        if (value.equalsIgnoreCase("defeat")) value = "kill";
         e.addComponent(createAnimated("word-" + value.toLowerCase(), color, 0.5f));
+        if (value.equalsIgnoreCase("kill")) value = "defeat";
         e.addComponent(new Text(type, value));
 //        e.addComponent(new Sprite("word-" + value.toLowerCase() + ".png"));
         RuleComponent rc = new RuleComponent();
@@ -106,7 +108,7 @@ public class LevelEntityFactory {
         Entity e = new Entity();
         e.addComponent(new Position(x, y));
 //        e.addComponent(new Sprite("flag.png"));
-        e.addComponent(createAnimated("flag", Color.YELLOW, 1));
+        e.addComponent(createAnimated("flag", Color.YELLOW, 0.79f));
         e.addComponent(new Noun(Noun.Type.FLAG));
         return e;
     }
@@ -115,7 +117,7 @@ public class LevelEntityFactory {
         Entity e = new Entity();
         e.addComponent(new Position(x, y));
 //        e.addComponent(new Sprite("lava.png"));
-        e.addComponent(createAnimated("lava", Color.RED, 0));
+        e.addComponent(createAnimated("lava", Color.ORANGE, -.04f));
         e.addComponent(new Noun(Noun.Type.LAVA));
         return e;
     }
@@ -124,7 +126,7 @@ public class LevelEntityFactory {
         Entity e = new Entity();
         e.addComponent(new Position(x, y));
 //        e.addComponent(new Sprite("water.png"));
-        e.addComponent(createAnimated("water", Color.AQUA, 0));
+        e.addComponent(createAnimated("water", Color.AQUA, -0.04f));
         e.addComponent(new Noun(Noun.Type.WATER));
         return e;
     }
@@ -142,14 +144,14 @@ public class LevelEntityFactory {
         Entity e = new Entity();
         e.addComponent(new Position(x, y));
 //        e.addComponent(new Sprite("grass.png"));
-        e.addComponent(createAnimated("grass", Color.LIME, 1f));
+        e.addComponent(createAnimated("grass", Color.LIME, -0.8f));
         return e;
     }
 
     public static Entity createFlowers(int x, int y){
         Entity e = new Entity();
         e.addComponent(new Position(x, y));
-        e.addComponent(createAnimated("flowers", Color.PURPLE, 1f));
+        e.addComponent(createAnimated("flowers", Color.PURPLE, -0.8f));
         return e;
     }
 

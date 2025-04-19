@@ -19,7 +19,7 @@ public class RenderTextSystem extends System {
     }
 
     public void update(World world, double deltaTime, Graphics2D graphics) {
-        float tileSize = 1.0f / 16.0f;
+        float tileSize = 1f / Math.min(world.getLevelHeight(), world.getLevelWidth());
         float offsetX = -tileSize * world.getLevelWidth() / 2.0f;
         float offsetY = -tileSize * world.getLevelHeight() / 2.0f;
 
@@ -28,8 +28,8 @@ public class RenderTextSystem extends System {
 
         for (Entity e : entities) {
             Position pos = world.getComponent(e, Position.class);
-            float drawX = offsetX + tileSize * pos.getX() + tileSize / 2;
-            float drawY = offsetY + tileSize * pos.getY() + tileSize / 2;
+            float drawX = offsetX + tileSize * pos.getX() + tileSize / 2f;
+            float drawY = offsetY + tileSize * pos.getY() + tileSize / 2f;
 
             Color tint = Color.WHITE;
 
@@ -46,10 +46,12 @@ public class RenderTextSystem extends System {
             if (world.hasComponent(e, Sprite.class)) {
                 Sprite sprite = world.getComponent(e, Sprite.class);
                 if (!sprite.spriteName.toLowerCase().startsWith("word-")) continue;
-                spriteManager.draw(graphics, sprite.spriteName, drawX, drawY, sprite.color, sprite.z);
+                spriteManager.draw(graphics, sprite.spriteName, drawX, drawY, sprite.color, sprite.z, tileSize);
             }
             else if (world.hasComponent(e, AnimatedSpriteComponent.class)) {
                 AnimatedSpriteComponent anim = world.getComponent(e, AnimatedSpriteComponent.class);
+                if (!anim.name.toLowerCase().startsWith("word-")) continue;
+                anim.sprite.setSize(tileSize, tileSize);
                 anim.sprite.setCenter(drawX, drawY);
                 anim.sprite.draw(graphics, anim.color, anim.z);
             }
