@@ -125,12 +125,12 @@ public class GamePlayView extends GameStateView {
             nextGameState = GameStateEnum.MainMenu;
         });
 
-        inputKeyboard.registerCommand(GLFW.GLFW_KEY_R, true, (elapsedTime) -> {
-            if (world.getSystem(SoundSystem.class) != null) {
-                if (!world.getSystem(SoundSystem.class).isPlaying("reset")) world.getSystem(SoundSystem.class).play("reset");
-            }
-            restartLevel();
-        });
+//        inputKeyboard.registerCommand(GLFW.GLFW_KEY_R, true, (elapsedTime) -> {
+//            if (world.getSystem(SoundSystem.class) != null) {
+//                if (!world.getSystem(SoundSystem.class).isPlaying("reset")) world.getSystem(SoundSystem.class).play("reset");
+//            }
+//            restartLevel();
+//        });
 
         loadLevel(currentLevelIndex);
 
@@ -310,9 +310,33 @@ public class GamePlayView extends GameStateView {
             renderParticleSystem.update(world, elapsedTime, graphics);
         }
 
-        graphics.drawTextByHeight(font, String.format("[ESC] - Back", ControlConfig.Action.UNDO), -0.95f, -0.75f, 0.05f, Color.YELLOW);
-        graphics.drawTextByHeight(font, String.format("[%s] - Restart", GLFW.glfwGetKeyName(ControlConfig.getBinding(ControlConfig.Action.RESTART.name()),0).toUpperCase()), -0.95f, -0.69f, 0.05f, Color.CORNFLOWER_BLUE);
-        graphics.drawTextByHeight(font, String.format("[%s] - Undo", GLFW.glfwGetKeyName(ControlConfig.getBinding(ControlConfig.Action.UNDO.name()),0).toUpperCase()), -0.95f, -0.63f, 0.05f, Color.BLUE);
+        graphics.drawTextByHeight(font,
+                "[ESC] - Back", -0.95f, -0.5f, 0.05f, Color.YELLOW);
+        graphics.drawTextByHeight(
+                font,
+                String.format(
+                        "[%s] - Restart",
+                        GLFW.glfwGetKeyName(
+                                ControlConfig.getBinding(
+                                        ControlConfig.Action.RESTART.name()),
+                                0).toUpperCase()),
+                -0.95f,
+                -0.44f,
+                0.05f,
+                Color.CORNFLOWER_BLUE
+        );
+        graphics.drawTextByHeight(
+                font,
+                String.format(
+                        "[%s] - Undo",
+                        GLFW.glfwGetKeyName(
+                                ControlConfig.getBinding(
+                                        ControlConfig.Action.UNDO.name()),
+                                0).toUpperCase()),
+                -0.95f,
+                -0.38f,
+                0.05f,
+                Color.BLUE);
     }
 
     public void triggerWin(int x, int y) {
@@ -329,8 +353,8 @@ public class GamePlayView extends GameStateView {
         for (Entity e : allLevels.get(level)) world.addEntity(e.clone());
 
         world.updateAll(0);
-        undoSystem.clear();
-        undoSystem.push(world);
+        undoSystem.clear(world);
+//        undoSystem.push(world);
 
         levelWon = false;
         winPosition = null;

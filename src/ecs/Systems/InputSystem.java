@@ -4,6 +4,8 @@ import ecs.Components.KeyboardControlled;
 import ecs.Entities.Entity;
 import ecs.World;
 import edu.usu.graphics.Graphics2D;
+import gamestates.GamePlayView;
+import gamestates.GameStateEnum;
 import input.ControlConfig;
 import utils.Direction;
 
@@ -19,6 +21,8 @@ public class InputSystem extends System {
     private boolean undoWasDown = false;
     private float moveCooldown = 0f;
     private static final float MOVE_DELAY = 0.2f;
+
+    private boolean restartWasDown = false;
 
     public InputSystem(long window, World world, UndoSystem undoSystem) {
         this.window = window;
@@ -46,6 +50,17 @@ public class InputSystem extends System {
             }
         }
         undoWasDown = undoIsDown;
+
+        boolean restartIsDown = glfwGetKey(window, ControlConfig.getBinding("RESTART")) == GLFW_PRESS;
+        if (restartIsDown && !restartWasDown) {
+            undoSystem.clear(world);
+            List<Entity> controlled = world.getEntitiesWithComponent(KeyboardControlled.class);
+            for (Entity e: controlled) {
+                e.getComponent(KeyboardControlled.class).setDirection(null);
+            }
+            moveCooldown = 0f;
+        }
+        restartWasDown = restartIsDown;
 
         if (moveCooldown > 0) {
             return;

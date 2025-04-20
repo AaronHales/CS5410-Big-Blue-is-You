@@ -62,7 +62,10 @@ public class UndoSystem extends System {
         return !undoStack.isEmpty();
     }
 
-    public void clear() {
+    public void clear(World world) {
+        while (canUndo()) {
+            pop(world);
+        }
         undoStack.clear();
     }
 

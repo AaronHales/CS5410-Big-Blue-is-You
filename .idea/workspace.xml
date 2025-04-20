@@ -6,8 +6,13 @@
   <component name="ChangeListManager">
     <list default="true" id="8858ee06-ea5c-4baa-8898-f17b08ca1729" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/gamestates/ControlsMenuView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gamestates/ControlsMenuView.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/GameStateDemo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/GameStateDemo.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ecs/Systems/InputSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/InputSystem.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ecs/Systems/UndoSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/UndoSystem.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gamestates/AboutView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gamestates/AboutView.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/gamestates/GamePlayView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gamestates/GamePlayView.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gamestates/HelpView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gamestates/HelpView.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/levels/LevelEntityFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/levels/LevelEntityFactory.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

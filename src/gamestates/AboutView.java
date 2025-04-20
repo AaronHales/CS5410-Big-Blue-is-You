@@ -3,6 +3,7 @@ package gamestates;
 import edu.usu.graphics.Color;
 import edu.usu.graphics.Font;
 import edu.usu.graphics.Graphics2D;
+import input.Controls;
 import input.KeyboardInput;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -16,6 +17,7 @@ public class AboutView extends GameStateView {
     @Override
     public void initialize(Graphics2D graphics) {
         super.initialize(graphics);
+        Controls.loadBindings();
 
         font = new Font("resources/fonts/Roboto-Regular.ttf", 48, false);
 

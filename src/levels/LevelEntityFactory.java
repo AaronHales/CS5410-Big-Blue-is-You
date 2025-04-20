@@ -63,10 +63,10 @@ public class LevelEntityFactory {
             case "lava" -> Color.ORANGE;
             case "push" -> Color.LIGHT_GRAY;
             case "rock" -> Color.BROWN;
-            case "sink" -> Color.TRANSLUCENT_BLUE;
+            case "sink" -> Color.AQUA;
             case "stop" -> Color.TRANSLUCENT_RED;
             case "wall" -> Color.GRAY;
-            case "water" -> Color.AQUA;
+            case "water" -> Color.TRANSLUCENT_BLUE;
             case "win" -> Color.GOLD;
             case "you" -> Color.MAGENTA;
             default -> throw new IllegalStateException("Unexpected value: " + value.toLowerCase());
@@ -126,7 +126,7 @@ public class LevelEntityFactory {
         Entity e = new Entity();
         e.addComponent(new Position(x, y));
 //        e.addComponent(new Sprite("water.png"));
-        e.addComponent(createAnimated("water", Color.AQUA, -0.04f));
+        e.addComponent(createAnimated("water", Color.TRANSLUCENT_BLUE, -0.04f));
         e.addComponent(new Noun(Noun.Type.WATER));
         return e;
     }
