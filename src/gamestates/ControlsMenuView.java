@@ -114,7 +114,12 @@ public class ControlsMenuView extends GameStateView {
 
     @Override
     public void render(double elapsedTime) {
-        float y = -0.6f;
+        float y = -0.3f;
+
+        float width = fontSelected.measureTextWidth("Controls", 0.1f);
+        float height = fontSelected.measureTextHeight("Controls", width);
+
+        graphics.drawTextByHeight(fontSelected, "Controls", -width/2f, -0.5f, height, Color.YELLOW);
 
         for (int i = 0; i < actions.size(); i++) {
             ControlConfig.Action action = actions.get(i);
@@ -126,14 +131,24 @@ public class ControlsMenuView extends GameStateView {
             }
 
             String text = action.name().replace("_", " ") + " : " + keyName.toUpperCase();
+            if (i == selectedIndex) {
+                width = fontSelected.measureTextWidth(text, 0.05f);
+                height = fontSelected.measureTextHeight(text, width);
+            } else {
+                width = font.measureTextWidth(text, 0.05f);
+                height = font.measureTextHeight(text, width);
+            }
             if (waitingForRebind && i == selectedIndex) {
                 text = action.name().replace("_", " ") + " : Press a key";
             }
 
+
             Color color = (i == selectedIndex ? Color.YELLOW : Color.BLUE);
-            graphics.drawTextByHeight(i == selectedIndex ? fontSelected : font, text, -0.75f, y, 0.05f, color);
-            y += 0.1f;
+            graphics.drawTextByHeight(i == selectedIndex ? fontSelected : font, text, -width/2, y + height / 2, 0.05f, color);
+            y += 0.07f;
         }
+
+        graphics.drawTextByHeight(fontSelected, "[ESC] - to go back", -0.5f, 0.4f, 0.05f, Color.SKY_BLUE);
 
 //        if (waitingForRebind) {
 //            graphics.drawTextByHeight(

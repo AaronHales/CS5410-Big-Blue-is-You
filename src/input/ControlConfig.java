@@ -6,7 +6,7 @@ import java.util.Map;
 
 public class ControlConfig {
     public enum Action {
-        UP, DOWN, LEFT, RIGHT, UNDO, RESET, /*MENU_BACK*/
+        UP, DOWN, LEFT, RIGHT, UNDO, RESTART, /*MENU_BACK*/
     }
 
     private static final Map<Action, Integer> bindings = new EnumMap<>(Action.class);
@@ -42,7 +42,7 @@ public class ControlConfig {
         bindings.put(Action.LEFT, GLFW.GLFW_KEY_A);
         bindings.put(Action.RIGHT, GLFW.GLFW_KEY_D);
         bindings.put(Action.UNDO, GLFW.GLFW_KEY_Z);
-        bindings.put(Action.RESET, GLFW.GLFW_KEY_R);
+        bindings.put(Action.RESTART, GLFW.GLFW_KEY_R);
 //        bindings.put(Action.MENU_BACK, GLFW.GLFW_KEY_ESCAPE);
     }
 }

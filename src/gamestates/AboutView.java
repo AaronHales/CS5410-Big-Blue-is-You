@@ -44,7 +44,7 @@ public class AboutView extends GameStateView {
 
     @Override
     public void render(double elapsedTime) {
-        final String message = "*I* wrote this amazing game!";
+        final String message = "Made by Aaron Hales (with help of ChatGPT)";
         final float height = 0.075f;
         final float width = font.measureTextWidth(message, height);
 

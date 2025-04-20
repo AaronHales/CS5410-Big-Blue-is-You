@@ -5,6 +5,7 @@ import edu.usu.graphics.Graphics2D;
 import ecs.Systems.*;
 import ecs.Components.*;
 import ecs.Entities.*;
+import input.ControlConfig;
 import levels.*;
 import ecs.*;
 import input.KeyboardInput;
@@ -309,9 +310,9 @@ public class GamePlayView extends GameStateView {
             renderParticleSystem.update(world, elapsedTime, graphics);
         }
 
-        graphics.drawTextByHeight(font, "[ESC] - Back", -0.95f, -0.75f, 0.05f, Color.YELLOW);
-        graphics.drawTextByHeight(font, "[R] - Restart", -0.95f, -0.69f, 0.05f, Color.CORNFLOWER_BLUE);
-        graphics.drawTextByHeight(font, "[Z] - Undo", -0.95f, -0.63f, 0.05f, Color.BLUE);
+        graphics.drawTextByHeight(font, String.format("[ESC] - Back", ControlConfig.Action.UNDO), -0.95f, -0.75f, 0.05f, Color.YELLOW);
+        graphics.drawTextByHeight(font, String.format("[%s] - Restart", GLFW.glfwGetKeyName(ControlConfig.getBinding(ControlConfig.Action.RESTART.name()),0).toUpperCase()), -0.95f, -0.69f, 0.05f, Color.CORNFLOWER_BLUE);
+        graphics.drawTextByHeight(font, String.format("[%s] - Undo", GLFW.glfwGetKeyName(ControlConfig.getBinding(ControlConfig.Action.UNDO.name()),0).toUpperCase()), -0.95f, -0.63f, 0.05f, Color.BLUE);
     }
 
     public void triggerWin(int x, int y) {
