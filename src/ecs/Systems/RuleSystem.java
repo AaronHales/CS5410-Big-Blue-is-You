@@ -3,10 +3,8 @@ package ecs.Systems;
 import ecs.Components.*;
 import ecs.Entities.Entity;
 import ecs.World;
-import edu.usu.graphics.Color;
 import edu.usu.graphics.Graphics2D;
 import levels.LevelEntityFactory;
-import org.joml.Vector2f;
 import particles.ParticleSystem;
 import utils.Direction;
 
@@ -14,6 +12,9 @@ import java.util.*;
 
 public class RuleSystem extends System {
     private final World world;
+
+    private final Map<Noun.Type, Noun.Type> nounTransform = new HashMap<>();
+    private final Map<Noun.Type, Noun.Type> transformations = new HashMap<>();
 
     public RuleSystem(World world) {
         this.world = world;
@@ -30,6 +31,8 @@ public class RuleSystem extends System {
             RuleComponent rc = world.getComponent(e, RuleComponent.class);
             rc.clear();
         }
+
+        transformations.clear();
 
         // Default: make all text entities pushable
         for (Entity e : new ArrayList<>(world.getEntitiesWithComponent(Text.class))) {
@@ -88,8 +91,6 @@ public class RuleSystem extends System {
     public void render(double elapsedTime, Graphics2D graphics) {
 
     }
-
-    private final Map<Noun.Type, Noun.Type> transformations = new HashMap<>();
 
     private void tryRule(int x, int y, int dx1, int dy1, int dx2, int dy2) {
         List<Entity> left = world.getEntitiesAtPosition(x + dx1, y + dy1);
@@ -192,6 +193,19 @@ public class RuleSystem extends System {
             return;
         }
 
+        // Revert any previous noun transformations if rules no longer active
+        for (Entity e : world.getEntitiesWithComponent(TransformMarker.class)) {
+            TransformMarker tm = world.getComponent(e, TransformMarker.class);
+            Noun n = world.getComponent(e, Noun.class);
+            // If this entity's original type is no longer transformed by current rules
+            if (!transformations.containsKey(tm.getOriginalType()) ||
+                    transformations.get(tm.getOriginalType()) != n.getNounType()) {
+                n.setNounType(tm.getOriginalType());
+                world.removeComponent(e, TransformMarker.class);
+            }
+        }
+
+
         // NOUN IS NOUN (Transformation) with contradiction check
         if (nounText.getTextType() == Text.TextType.NOUN &&
                 propText.getTextType() == Text.TextType.NOUN) {
@@ -213,7 +227,7 @@ public class RuleSystem extends System {
                 Noun noun = world.getComponent(e, Noun.class);
                 if (noun.getValue().equalsIgnoreCase(from.name())) {
                     Position pos = world.getComponent(e, Position.class);
-                    world.removeEntity(e);
+                    world.removeEntity(e, false);
                     Entity replacement = LevelEntityFactory.createFromNoun(to, pos.getX(), pos.getY());
                     if (replacement != null) world.addEntity(replacement);
                 }

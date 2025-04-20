@@ -52,6 +52,10 @@ public class UndoSystem extends System {
         for (Entity e : previousState) {
             world.addEntity(e);
         }
+
+        if (world.getSystem(SoundSystem.class) != null) {
+            if (!world.getSystem(SoundSystem.class).isPlaying("undo")) world.getSystem(SoundSystem.class).play("undo");
+        }
     }
 
     public boolean canUndo() {

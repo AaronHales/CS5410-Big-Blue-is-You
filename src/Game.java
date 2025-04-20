@@ -24,6 +24,7 @@ public class Game {
                 put(GameStateEnum.ControlsMenu, new ControlsMenuView());
                 put(GameStateEnum.Help, new HelpView());
                 put(GameStateEnum.About, new AboutView());
+                put(GameStateEnum.LevelSelect, new LevelSelectView());
             }
         };
 

@@ -14,8 +14,8 @@ import org.joml.Vector2f;
 import org.lwjgl.glfw.GLFW;
 import particles.*;
 
-import java.io.File;
 import java.lang.System;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,6 +27,9 @@ public class GamePlayView extends GameStateView {
 
     private World world;
     private SpriteManager spriteManager;
+    private List<List<Entity>> allLevels;
+
+    SoundSystem soundSystem = new SoundSystem();
 
     private int currentLevelIndex = 0;
     private double winDelayTimer = -1;
@@ -50,6 +53,7 @@ public class GamePlayView extends GameStateView {
     private final Set<Entity> prevYou = new HashSet<>();
     private final Set<Entity> prevWin = new HashSet<>();
 
+
     @Override
     public void initialize(Graphics2D graphics) {
         super.initialize(graphics);
@@ -59,6 +63,18 @@ public class GamePlayView extends GameStateView {
         world = new World();
 
         undoSystem = new UndoSystem();
+
+        soundSystem.load("push", "resources/audio/push.ogg",false);
+        soundSystem.load("woosh", "resources/audio/undo.ogg", false);     // from https://freesound.org/people/Sergenious/sounds/55843/
+        soundSystem.load("reset", "resources/audio/rewind.ogg",false);
+        soundSystem.load("win", "resources/audio/success.ogg",false);
+        soundSystem.load("movement", "resources/audio/movement.ogg",false);
+        soundSystem.load("kill", "resources/audio/pop.ogg", false);     // from https://freesound.org/people/theplax/sounds/545201/
+        soundSystem.load("sink", "resources/audio/sink.ogg", false);
+        soundSystem.load("music", "resources/audio/bg_music.ogg", true);
+        soundSystem.load("undo", "resources/audio/woosh.ogg", false);       // from https://freesound.org/people/Artninja/sounds/761175/
+
+        world.addSystem(soundSystem);
 
         spriteManager = new SpriteManager("./resources/sprites");
         spriteManager.loadAll();
@@ -88,27 +104,34 @@ public class GamePlayView extends GameStateView {
         // particle stuff
         world.addSystem(new RuleVisualEffectSystem(world, particleSystem));
 
-        List<Entity> levelEntities = levels.LevelLoader.loadLevels("resources/levels/level-1.bbiy", world);
-        for (Entity entity : levelEntities) {
-            java.lang.System.out.printf("entity: %s %s, spriteName: %s\n", entity, entity.getComponent(Position.class).toString(), entity.hasComponent(Sprite.class) ? entity.getComponent(Sprite.class).spriteName : entity.getComponent(AnimatedSpriteComponent.class).name);
-            world.addEntity(entity);
+        try {
+            allLevels = CombinedLevelLoader.loadAllLevels(
+                    "resources/levels/levels-all.bbiy", world
+            );
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to load combined levels file", e);
+        }
+        if (allLevels.isEmpty()) {
+            throw new IllegalStateException("No levels found in combined file");
         }
 
         font = new Font("resources/fonts/Roboto-Regular.ttf", 48, true);
 
         inputKeyboard = new KeyboardInput(graphics);
         inputKeyboard.registerCommand(GLFW.GLFW_KEY_ESCAPE, true, (elapsedTime) -> {
+            soundSystem.pause("music");
             Controls.saveBindings();
             nextGameState = GameStateEnum.MainMenu;
         });
 
         inputKeyboard.registerCommand(GLFW.GLFW_KEY_R, true, (elapsedTime) -> {
+            if (world.getSystem(SoundSystem.class) != null) {
+                if (!world.getSystem(SoundSystem.class).isPlaying("reset")) world.getSystem(SoundSystem.class).play("reset");
+            }
             restartLevel();
         });
 
-//        inputKeyboard.registerCommand(GLFW.GLFW_KEY_Z, true, (elapsedTime) -> {
-//            undoLastMove();
-//        });
+        loadLevel(currentLevelIndex);
 
         // -- Immediately process rules on level load --
         // so that any RuleComponents are set before the first frame
@@ -125,6 +148,13 @@ public class GamePlayView extends GameStateView {
     @Override
     public void initializeSession() {
         nextGameState = GameStateEnum.GamePlay;
+        int level = GameStateEnum.GamePlay.getStartLevel();
+        if (level != currentLevelIndex) {
+            currentLevelIndex = level;
+            restartLevel();
+        }
+        soundSystem.play("music");
+        soundSystem.setGain("music", 0.13f);
     }
 
     @Override
@@ -149,6 +179,10 @@ public class GamePlayView extends GameStateView {
                     particles.fireworks(new Vector2f(winPosition.getX(), winPosition.getY()));
                     fireworksTriggeredTimes++;
                 }
+                if (world.getSystem(SoundSystem.class) != null) {
+                    SoundSystem sounds = world.getSystem(SoundSystem.class);
+                    if (!sounds.isPlaying("win")) sounds.play("win");
+                }
             }
 
             winDelayTimer -= elapsedTime;
@@ -165,15 +199,6 @@ public class GamePlayView extends GameStateView {
             Set<Entity> currentYou = new HashSet<>();
             Set<Entity> currentWin = new HashSet<>();
             for (Entity e : world.getEntitiesWithComponent(RuleComponent.class)) {
-//                if (e.getComponent(AnimatedSpriteComponent.class) != null && e.getComponent(AnimatedSpriteComponent.class).name.toLowerCase().startsWith("flag")) {
-//                    float tileSize = 1f / (Math.min(world.getLevelHeight(), world.getLevelWidth()));
-//                    float offsetX = -tileSize * world.getLevelWidth() / 2.0f;
-//                    float offsetY = -tileSize * world.getLevelHeight() / 2.0f;
-//                    Position pos = e.getComponent(Position.class);
-//                    float drawX = offsetX + tileSize * pos.getX() + tileSize / 2;
-//                    float drawY = offsetY + tileSize * pos.getY() + tileSize / 2;
-//                    System.out.printf("flag at: (%f, %f)\n", drawX, drawY);
-//                }
                 RuleComponent rc = world.getComponent(e, RuleComponent.class);
                 if (rc.hasProperty(Property.YOU)) currentYou.add(e);
                 if (rc.hasProperty(Property.WIN)) currentWin.add(e);
@@ -181,14 +206,6 @@ public class GamePlayView extends GameStateView {
             world.updateAll(elapsedTime);
 
 
-//            for (Entity e : new ArrayList<>(world.getEntitiesWithComponent(RuleVisualTag.class))) {
-//                System.out.printf("entity: %s, %s, Tag: %s", e, e.getComponent(Position.class), e.getComponent(RuleVisualTag.class).getType());
-//                if (e.hasComponent(RuleVisualTag.class) && e.getComponent(RuleVisualTag.class).getType() == RuleVisualTag.Type.VALID) {
-//                    Position pos = e.getComponent(Position.class);
-//                    world.getSystem(ParticleSystem.class).sparkleBorder(new Vector2f(pos.getX(), pos.getY()));
-//                }
-//            }
-//            java.lang.System.err.println(world.getEntities().get(103).getComponent(RuleComponent.class).getProperties());
 
             for (ecs.Systems.System system : world.getSystems()) {
                 if (system instanceof ConditionSystem cs && cs.isLevelWon() && !levelWon) {
@@ -213,19 +230,12 @@ public class GamePlayView extends GameStateView {
                 }
             }
 
-//            // 1) Object destruction effect: entities removed this frame
-//            for (Entity old : prevEntities) {
-//                if (!currentEntities.contains(old)) {
-//                    Position pos = old.getComponent(Position.class);
-//                    if (pos != null) particleSystem.objectDestroyed(new Vector2f(pos.getX(), pos.getY()),Color.TRANSLUCENT_RED);
-//                }
-//            }
-
             // 2) YOU rule change effect: new YOU entities sparkle at border
             for (Entity e : currentYou) {
                 if (!prevYou.contains(e)) {
                     Position pos = e.getComponent(Position.class);
                     if (pos != null) particleSystem.sparkleBorder(new Vector2f(pos.getX(), pos.getY()), Color.MAGENTA);
+                    world.getSystem(SoundSystem.class).play("woosh");
                 }
             }
 
@@ -234,6 +244,7 @@ public class GamePlayView extends GameStateView {
                 if (!prevWin.contains(e)) {
                     Position pos = e.getComponent(Position.class);
                     if (pos != null) particleSystem.sparkleBorder(new Vector2f(pos.getX(), pos.getY()), Color.GOLD);
+                    soundSystem.play("woosh");
                 }
             }
 
@@ -310,104 +321,37 @@ public class GamePlayView extends GameStateView {
         this.fireworksTriggeredTimes = 0;
     }
 
-    private void loadNextLevel() {
-        currentLevelIndex++;
-        String path = "resources/levels/level-" + (currentLevelIndex + 1) + ".bbiy";
-        File f = new File(path);
-        if (!f.exists()) {
-            nextGameState = GameStateEnum.MainMenu;
-            return;
-        }
-        world.clear();
-        List<Entity> next = levels.LevelLoader.loadLevels(path, world);
-        for (Entity e : next) {
-            world.addEntity(e);
-        }
+    private void loadLevel(int level) {
+        List<Entity> toRemove = new ArrayList<>(world.getEntities());
+        for (Entity e : toRemove) world.removeEntity(e, false);
+
+        for (Entity e : allLevels.get(level)) world.addEntity(e.clone());
+
+        world.updateAll(0);
+        undoSystem.clear();
+        undoSystem.push(world);
+
         levelWon = false;
         winPosition = null;
         winDelayTimer = -1;
         this.fireworksTriggeredTimes = 0;
-        undoSystem.clear();
+        world.getSystem(MovementSystem.class).reset();
+    }
 
-        undoSystem = new UndoSystem();
-
-        spriteManager = new SpriteManager("./resources/sprites");
-        spriteManager.loadAll();
-
-        LevelEntityFactory.setSpriteManager(spriteManager);
-
-        world.addSystem(undoSystem);
-
-        renderFloorSystem = new RenderFloorSystem(world, spriteManager);
-        renderObjectsSystem = new RenderObjectsSystem(world, spriteManager);
-        renderTextSystem = new RenderTextSystem(world, spriteManager);
-
-//        this.particleSystem = new ParticleSystem();
-
-//        renderParticleSystem = new RenderParticleSystem(particleSystem);
-        world.addSystem(particleSystem);
-        world.addSystem(renderParticleSystem);
-//        this.ruleVisualEffectSystem = new RuleVisualEffectSystem(world, particleSystem);
-        world.addSystem(ruleVisualEffectSystem);
-
-        world.addSystem(new InputSystem(graphics.getWindow(), world, undoSystem));
-        world.addSystem(new MovementSystem(world, this));
-        world.addSystem(new RuleSystem(world));
-        world.addSystem(new ConditionSystem(world));
-        world.addSystem(new AnimatedSpriteSystem(world));
-
-        // particle stuff
-        world.addSystem(new RuleVisualEffectSystem(world, particleSystem));
-
-        world.updateAll(0);
-        world.renderAll(0, graphics);
+    private void loadNextLevel() {
+        currentLevelIndex++;
+        if (currentLevelIndex >= allLevels.size()) {
+            soundSystem.stop("music");
+            nextGameState = GameStateEnum.MainMenu;
+        }
+        else {
+            loadLevel(currentLevelIndex);
+        }
     }
 
     private void restartLevel() {
-        String path = "resources/levels/level-" + (currentLevelIndex + 1) + ".bbiy";
-        world.clear();
-        List<Entity> levelEntities = levels.LevelLoader.loadLevels(path, world);
-        for (Entity entity : levelEntities) {
-            world.addEntity(entity);
-        }
+        loadLevel(currentLevelIndex);
+        particleSystem.update(0);
 
-        levelWon = false;
-        winPosition = null;
-        winDelayTimer = -1;
-        this.fireworksTriggeredTimes = 0;
-        undoSystem.clear();
-
-        undoSystem = new UndoSystem();
-
-        spriteManager = new SpriteManager("./resources/sprites");
-        spriteManager.loadAll();
-
-        LevelEntityFactory.setSpriteManager(spriteManager);
-
-        world.addSystem(undoSystem);
-
-        renderFloorSystem = new RenderFloorSystem(world, spriteManager);
-        renderObjectsSystem = new RenderObjectsSystem(world, spriteManager);
-        renderTextSystem = new RenderTextSystem(world, spriteManager);
-
-//        this.particleSystem = new ParticleSystem();
-
-//        renderParticleSystem = new RenderParticleSystem(particleSystem);
-        world.addSystem(particleSystem);
-        world.addSystem(renderParticleSystem);
-//        this.ruleVisualEffectSystem = new RuleVisualEffectSystem(world, particleSystem);
-        world.addSystem(ruleVisualEffectSystem);
-
-        world.addSystem(new InputSystem(graphics.getWindow(), world, undoSystem));
-        world.addSystem(new MovementSystem(world, this));
-        world.addSystem(new RuleSystem(world));
-        world.addSystem(new ConditionSystem(world));
-        world.addSystem(new AnimatedSpriteSystem(world));
-
-        // particle stuff
-        world.addSystem(new RuleVisualEffectSystem(world, particleSystem));
-
-        world.updateAll(0);
-        world.renderAll(0, graphics);
     }
 }

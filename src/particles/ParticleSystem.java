@@ -65,6 +65,16 @@ public class ParticleSystem extends ecs.Systems.System{
         return particles;
     }
 
+    public void playerDeath(Vector2f tile, Color color) {
+        float cx = offsetX + tileSize * tile.x + tileSize / 2f - particleSize;
+        float cy = offsetX + tileSize * tile.y + tileSize / 2f - particleSize;
+        System.out.printf("destroy Particles at (%f, %f)\n", cx, cy);
+        for (int i = 0; i < 20; i++) {
+            spawn(cx, cy, (float) (rand.nextFloat() - 0.5f) * 1.1f, (float) (rand.nextFloat() - 0.5f) * 1.1f,
+                    color.r, color.g, color.b, color.a, 0.5f + rand.nextFloat() * 0.5f, 1f);
+        }
+    }
+
     // Spawn at tile center for destruction: small burst
     public void objectDestroyed(Vector2f tile, Color color) {
         float cx = offsetX + tileSize * tile.x + tileSize / 2f - particleSize;

@@ -37,7 +37,7 @@ public class World {
         }
     }
 
-    public void removeEntity(Entity entity) {
+    public void removeEntity(Entity entity, boolean doParticles) {
         entities.remove(entity);
         entityComponents.remove(entity);
 
@@ -52,8 +52,7 @@ public class World {
                 atPos.remove(entity);
                 if (atPos.isEmpty()) {
                     positionIndex.remove(key);
-                    if (this.getSystem(ParticleSystem.class) != null) {
-
+                    if (this.getSystem(ParticleSystem.class) != null && doParticles) {
                         this.getSystem(ParticleSystem.class).objectDestroyed(new Vector2f(x, y), Color.TRANSLUCENT_GRAY);
                     }
                 }
@@ -167,7 +166,7 @@ public class World {
 
 
     private void updateEntityPositionIndex(Entity entity, Position newPos) {
-        removeEntity(entity); // Remove to re-index
+        removeEntity(entity, true); // Remove to re-index
         addEntity(entity);    // Add it again to ensure the index is updated
     }
 

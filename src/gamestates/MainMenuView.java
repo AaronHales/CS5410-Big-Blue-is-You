@@ -4,6 +4,7 @@ import edu.usu.graphics.Color;
 import edu.usu.graphics.Font;
 import edu.usu.graphics.Graphics2D;
 import input.KeyboardInput;
+import org.lwjgl.glfw.GLFW;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -11,6 +12,7 @@ public class MainMenuView extends GameStateView {
 
     private enum MenuState {
         NewGame,
+        LevelSelect,
         Controls,
         Help,
         About,
@@ -48,13 +50,23 @@ public class MainMenuView extends GameStateView {
         inputKeyboard.registerCommand(GLFW_KEY_UP, true, (double elapsedTime) -> {
             currentSelection = currentSelection.previous();
         });
+
         inputKeyboard.registerCommand(GLFW_KEY_DOWN, true, (double elapsedTime) -> {
+            currentSelection = currentSelection.next();
+        });
+
+        inputKeyboard.registerCommand(org.lwjgl.glfw.GLFW.GLFW_KEY_W, true, (dt) -> {
+            currentSelection = currentSelection.previous();
+        });
+
+        inputKeyboard.registerCommand(GLFW.GLFW_KEY_S, true, (dt) -> {
             currentSelection = currentSelection.next();
         });
         // When Enter is pressed, set the appropriate new game state
         inputKeyboard.registerCommand(GLFW_KEY_ENTER, true, (double elapsedTime) -> {
             nextGameState = switch (currentSelection) {
                 case MenuState.NewGame -> GameStateEnum.GamePlay;
+                case MenuState.LevelSelect -> GameStateEnum.LevelSelect;
                 case MenuState.Controls -> GameStateEnum.ControlsMenu;
                 case MenuState.Help -> GameStateEnum.Help;
                 case MenuState.About -> GameStateEnum.About;
@@ -83,7 +95,8 @@ public class MainMenuView extends GameStateView {
     public void render(double elapsedTime) {
         final float HEIGHT_MENU_ITEM = 0.075f;
         float top = -0.25f;
-        top = renderMenuItem(currentSelection == MenuState.NewGame ? fontSelected : fontMenu, "New Game", top, HEIGHT_MENU_ITEM, currentSelection == MenuState.NewGame ? Color.YELLOW : Color.BLUE);
+        top = renderMenuItem(currentSelection == MenuState.NewGame ? fontSelected : fontMenu, "Continue Game", top, HEIGHT_MENU_ITEM, currentSelection == MenuState.NewGame ? Color.YELLOW : Color.BLUE);
+        top = renderMenuItem(currentSelection == MenuState.LevelSelect ? fontSelected : fontMenu, "New Game", top, HEIGHT_MENU_ITEM, currentSelection == MenuState.LevelSelect ? Color.YELLOW : Color.BLUE);
         top = renderMenuItem(currentSelection == MenuState.Controls ? fontSelected : fontMenu, "Controls", top, HEIGHT_MENU_ITEM, currentSelection == MenuState.Controls ? Color.YELLOW : Color.BLUE);
         top = renderMenuItem(currentSelection == MenuState.Help ? fontSelected : fontMenu, "Help", top, HEIGHT_MENU_ITEM, currentSelection == MenuState.Help ? Color.YELLOW : Color.BLUE);
         top = renderMenuItem(currentSelection == MenuState.About ? fontSelected : fontMenu, "About", top, HEIGHT_MENU_ITEM, currentSelection == MenuState.About ? Color.YELLOW : Color.BLUE);

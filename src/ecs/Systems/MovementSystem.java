@@ -1,18 +1,19 @@
 package ecs.Systems;
 
+import Render.SpriteManager;
 import ecs.Components.*;
 import ecs.Entities.Entity;
 import ecs.World;
+import edu.usu.graphics.Color;
 import edu.usu.graphics.Graphics2D;
 import org.joml.Vector2f;
+import particles.ParticleSystem;
 import utils.Direction;
-import particles.*;
 import gamestates.GamePlayView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class MovementSystem extends System {
     private final World world;
@@ -20,6 +21,7 @@ public class MovementSystem extends System {
     private final GamePlayView view;
 
     private HashMap<Entity, Position> pushed = new HashMap<>();
+    private HashMap<Entity, Color> toRemove = new HashMap<>();
 
     public MovementSystem(World world, GamePlayView view) {
         this.world = world;
@@ -41,18 +43,17 @@ public class MovementSystem extends System {
                     java.lang.System.out.println(pos);
                     int newX = pos.getX() + moveDir.dx;
                     int newY = pos.getY() + moveDir.dy;
-
-                    boolean isBlocked = !isBlocked(newX, newY, moveDir.dx, moveDir.dy);
-//                    boolean tryPush1 = tryPush(newX, newY, moveDir.dx, moveDir.dy);
-                    java.lang.System.out.printf("!isBlocked: %b, ", isBlocked);
-                    java.lang.System.out.println();
-                    if (isBlocked) {
+                    if (!isBlocked(newX, newY, moveDir.dx, moveDir.dy)) {
 //                        pos.set(newX, newY);
                         pushed.put(entity, new Position(newX, newY));
 //                        world.updateEntityPositionIndex(entity, newX, newY);
 //                        checkSink(entity, newX, newY);
                         checkDefeat(entity, newX, newY);
                         checkWin(entity, newX, newY);
+                        if (world.getSystem(SoundSystem.class) != null) {
+                            SoundSystem soundSystem = world.getSystem(SoundSystem.class);
+                            soundSystem.play("movement");
+                        }
                     }
 
                     input.clearDirection();
@@ -84,7 +85,7 @@ public class MovementSystem extends System {
             }
         }
 
-        if (!pushed.isEmpty()) {
+        if (!pushed.isEmpty() || !toRemove.isEmpty()) {
             if (world.getSystem(UndoSystem.class) != null) {
                 world.getSystem(UndoSystem.class).push(world);
             }
@@ -92,7 +93,16 @@ public class MovementSystem extends System {
                 checkSink(e, pushed.get(e).getX(), pushed.get(e).getY());
                 world.updateEntityPositionIndex(e, pushed.get(e).getX(), pushed.get(e).getY());
             }
+            for (Entity e : toRemove.keySet()) {
+                world.removeEntity(e, true);
+                if (world.getSystem(ParticleSystem.class) != null) {
+                    world.getSystem(ParticleSystem.class).objectDestroyed(
+                            new Vector2f(e.getComponent(Position.class).getX(), e.getComponent(Position.class).getY()),
+                            toRemove.get(e));
+                }
+            }
             pushed.clear();
+            toRemove.clear();
         }
     }
 
@@ -153,6 +163,9 @@ public class MovementSystem extends System {
             Entity e = chain.get(i);
             Position p = world.getComponent(e, Position.class);
             pushed.put(e, new Position(p.getX() + dx, p.getY() + dy));
+            if (world.getSystem(SoundSystem.class) != null) {
+                if (!world.getSystem(SoundSystem.class).isPlaying("push")) world.getSystem(SoundSystem.class).play("push");
+            }
 //            world.updateEntityPositionIndex(e, p.getX() + dx, p.getY() + dy);
         }
         return true;
@@ -166,13 +179,24 @@ public class MovementSystem extends System {
 
             RuleComponent rule = world.getComponent(e, RuleComponent.class);
             if (rule != null && rule.hasProperty(Property.SINK)) {
-                world.removeEntity(e);
+//                world.removeEntity(e, true);
+                if (e.getComponent(AnimatedSpriteComponent.class) != null) {
+                    toRemove.put(e, e.getComponent(AnimatedSpriteComponent.class).color);
+                }
+                else {
+                    toRemove.put(e, e.getComponent(Sprite.class).color);
+                }
+                world.getSystem(SoundSystem.class).play("sink");
                 if (!world.hasComponent(mover, Text.class)) {
-                    world.removeEntity(mover);
+//                    world.removeEntity(mover, true);
+                    if (e.getComponent(AnimatedSpriteComponent.class) != null) {
+                        toRemove.put(mover, e.getComponent(AnimatedSpriteComponent.class).color);
+                    }
+                    else {
+                        toRemove.put(mover, e.getComponent(Sprite.class).color);
+                    }
                     continue;
                 }
-                world.removeEntity(mover);
-                world.removeEntity(e);
                 break;
             }
         }
@@ -184,8 +208,11 @@ public class MovementSystem extends System {
         for (Entity e : new ArrayList<>(world.getEntitiesAtPosition(x, y))) {
             if (e == mover) continue;
             RuleComponent rule = world.getComponent(e, RuleComponent.class);
-            if (rule != null && rule.hasProperty(Property.DEFEAT) && e.getComponent(RuleComponent.class).hasProperty(Property.YOU)) {
-                world.removeEntity(mover);
+            if (rule != null && rule.hasProperty(Property.DEFEAT) && mover.getComponent(RuleComponent.class).hasProperty(Property.YOU)) {
+                world.getSystem(SoundSystem.class).play("kill");
+//                world.removeEntity(mover, true);
+                world.getSystem(ParticleSystem.class).playerDeath(new Vector2f(x, y), Color.RED);
+                toRemove.put(mover, Color.RED);
                 break;
             }
         }
@@ -216,5 +243,9 @@ public class MovementSystem extends System {
     @Override
     public void render(double elapsedTime, Graphics2D graphics) {
 
+    }
+
+    public void reset() {
+        winTriggered = false;
     }
 }

@@ -5,21 +5,34 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8858ee06-ea5c-4baa-8898-f17b08ca1729" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/resources/audio/bg_music.ogg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/audio/movement.ogg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/audio/pop.ogg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/audio/push.ogg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/audio/rewind.ogg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/audio/sink.ogg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/audio/success.ogg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/audio/undo.ogg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/ecs/Components/TransformMarker.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/ecs/Systems/SoundSystem.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/gamestates/LevelSelectView.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/levels/CombinedLevelLoader.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Render/SpriteManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Render/SpriteManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ecs/Systems/AnimatedSpriteSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/AnimatedSpriteSystem.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Game.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Game.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/GameStateDemo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/GameStateDemo.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ecs/Components/Noun.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Components/Noun.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ecs/Systems/MovementSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/MovementSystem.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ecs/Systems/RenderFloorSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/RenderFloorSystem.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ecs/Systems/RenderObjectsSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/RenderObjectsSystem.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ecs/Systems/RenderSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/RenderSystem.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ecs/Systems/RenderTextSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/RenderTextSystem.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ecs/Systems/Renderer.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ecs/Systems/RuleSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/RuleSystem.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ecs/Systems/RuleTextEffectSystem.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ecs/Systems/UndoSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/Systems/UndoSystem.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ecs/World.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ecs/World.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/edu/usu/graphics/AnimatedSprite.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/edu/usu/graphics/AnimatedSprite.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gamestates/ControlsMenuView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gamestates/ControlsMenuView.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/gamestates/GamePlayView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gamestates/GamePlayView.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/levels/LevelEntityFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/levels/LevelEntityFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gamestates/GameStateEnum.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gamestates/GameStateEnum.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gamestates/MainMenuView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gamestates/MainMenuView.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/levels/LevelLoader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/levels/LevelLoader.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/particles/ParticleSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/particles/ParticleSystem.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/particles/RenderParticleSystem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/particles/RenderParticleSystem.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -75,6 +88,7 @@
       <recent name="C:\Users\aaron\Desktop\USU\Spring 2025\Game Dev\CS5410 - Big Blue is You\src" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\aaron\Desktop\USU\Spring 2025\Game Dev\CS5410 - Big Blue is You\resources\audio" />
       <recent name="C:\Users\aaron\Desktop\USU\Spring 2025\Game Dev\CS5410 - Big Blue is You\resources\sprites" />
     </key>
     <key name="CopyClassDialog.RECENTS_KEY">

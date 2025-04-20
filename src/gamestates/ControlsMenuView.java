@@ -44,6 +44,18 @@ public class ControlsMenuView extends GameStateView {
             }
         });
 
+        input.registerCommand(GLFW.GLFW_KEY_W, true, (dt) -> {
+            if (!waitingForRebind) {
+                selectedIndex = (selectedIndex - 1 + actions.size()) % actions.size();
+            }
+        });
+
+        input.registerCommand(GLFW.GLFW_KEY_S, true, (dt) -> {
+            if (!waitingForRebind) {
+                selectedIndex = (selectedIndex + 1) % actions.size();
+            }
+        });
+
         input.registerCommand(GLFW.GLFW_KEY_ESCAPE, true, (dt) -> {
             if (waitingForRebind) {
                 waitingForRebind = false;
